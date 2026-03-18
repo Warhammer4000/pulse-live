@@ -153,7 +153,7 @@ export default function SessionHistory() {
       <header className="sticky top-0 z-10 border-b border-border/40 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard/analytics")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
