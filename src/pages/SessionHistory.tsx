@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Download, BarChart3, Cloud, MessageSquare, Calendar, Users, Hash } from "lucide-react";
+import { ArrowLeft, Download, BarChart3, Cloud, MessageSquare, Calendar, Users, Hash, RotateCcw, Play } from "lucide-react";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
 import { WordCloudViz } from "@/components/visualizations/WordCloudViz";
 import { ResponseFeed } from "@/components/visualizations/ResponseFeed";
@@ -73,8 +74,28 @@ export default function SessionHistory() {
   const { presentationId } = useParams<{ presentationId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
+
+  const reopenSession = useMutation({
+    mutationFn: async (sessionId: string) => {
+      const { data, error } = await supabase
+        .from("sessions")
+        .update({ is_active: true })
+        .eq("id", sessionId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["sessions-history", presentationId] });
+      navigate(`/present/${data.id}`);
+    },
+    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+  });
 
   const { data: presentation } = useQuery({
     queryKey: ["presentation", presentationId],
@@ -198,26 +219,47 @@ export default function SessionHistory() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-muted-foreground mr-1">Session:</span>
               {sessions.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => {
-                    setSelectedSessionId(s.id);
-                    setSelectedSlideId(null);
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all",
-                    (selectedSession?.id === s.id)
-                      ? "border-primary/30 bg-primary/10 text-primary"
-                      : "border-border/50 bg-card/50 text-muted-foreground hover:bg-muted"
+                <div key={s.id} className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      setSelectedSessionId(s.id);
+                      setSelectedSlideId(null);
+                    }}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all",
+                      (selectedSession?.id === s.id)
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-border/50 bg-card/50 text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Calendar className="h-3.5 w-3.5" />
+                    {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    <span className="font-mono text-xs opacity-60">#{s.join_code}</span>
+                    {s.is_active && (
+                      <span className="flex h-2 w-2 rounded-full bg-accent" />
+                    )}
+                  </button>
+                  {s.is_active ? (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-2 text-primary"
+                      onClick={() => navigate(`/present/${s.id}`)}
+                    >
+                      <Play className="h-3 w-3 mr-1" /> Resume
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-2 text-muted-foreground"
+                      onClick={() => reopenSession.mutate(s.id)}
+                      disabled={reopenSession.isPending}
+                    >
+                      <RotateCcw className="h-3 w-3 mr-1" /> Reopen
+                    </Button>
                   )}
-                >
-                  <Calendar className="h-3.5 w-3.5" />
-                  {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  <span className="font-mono text-xs opacity-60">#{s.join_code}</span>
-                  {s.is_active && (
-                    <span className="flex h-2 w-2 rounded-full bg-accent" />
-                  )}
-                </button>
+                </div>
               ))}
             </div>
 
