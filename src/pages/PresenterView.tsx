@@ -3,6 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -21,6 +32,7 @@ import {
   Play,
   Pause,
 } from "lucide-react";
+import { StopCircle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import type { Tables } from "@/integrations/supabase/types";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
@@ -286,6 +298,15 @@ export default function PresenterView() {
     queryClient.invalidateQueries({ queryKey: ["responses", sessionId] });
   };
 
+  const endSession = async () => {
+    if (!session) return;
+    await supabase
+      .from("sessions")
+      .update({ is_active: false })
+      .eq("id", session.id);
+    navigate("/");
+  };
+
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -360,6 +381,28 @@ export default function PresenterView() {
           <Button variant="ghost" size="sm" onClick={resetResults}>
             <RotateCcw className="mr-1 h-3 w-3" /> Reset
           </Button>
+          <div className="h-5 w-px bg-border/50 mx-1" />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                <StopCircle className="mr-1 h-3 w-3" /> End
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>End this session?</AlertDialogTitle>
+                <AlertDialogDescription className="font-body">
+                  This will disconnect all audience members and mark the session as complete. Responses are saved and you can review them later.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={endSession} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  End Session
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <div className="h-5 w-px bg-border/50 mx-1" />
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleFullscreen}>
             {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
