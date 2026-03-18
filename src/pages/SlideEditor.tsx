@@ -301,7 +301,7 @@ export default function SlideEditor() {
       {/* Sidebar */}
       <div className="flex w-64 flex-col border-r border-border/40 bg-card/50 backdrop-blur-xl">
         <div className="flex items-center gap-2 border-b border-border/40 p-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard/presentations")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Input
