@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Presentation, Trash2, LogOut, Play } from "lucide-react";
@@ -40,7 +41,6 @@ export default function Dashboard() {
         .select()
         .single();
       if (error) throw error;
-      // Create a default first slide
       await supabase.from("slides").insert({
         presentation_id: data.id,
         order: 0,
@@ -69,14 +69,13 @@ export default function Dashboard() {
   const startSession = useMutation({
     mutationFn: async (presentationId: string) => {
       const joinCode = Math.floor(100000 + Math.random() * 900000).toString();
-      // Get first slide
       const { data: slides } = await supabase
         .from("slides")
         .select("id")
         .eq("presentation_id", presentationId)
         .order("order")
         .limit(1);
-      
+
       const { data, error } = await supabase
         .from("sessions")
         .insert({
@@ -101,10 +100,10 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-10 border-b border-border/40 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
           <h1 className="text-xl font-bold tracking-tight">
-            Pulse<span className="text-primary">Live</span>
+            Pulse<span className="gradient-text">Live</span>
           </h1>
           <Button variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="mr-2 h-4 w-4" />
@@ -116,7 +115,7 @@ export default function Dashboard() {
       <main className="mx-auto max-w-5xl px-6 py-10">
         <div className="mb-8">
           <h2 className="text-3xl font-bold tracking-tight">Your Presentations</h2>
-          <p className="mt-1 text-muted-foreground">Create and manage interactive presentations</p>
+          <p className="font-body mt-1 text-muted-foreground">Create and manage interactive presentations</p>
         </div>
 
         <form onSubmit={handleCreate} className="mb-8 flex gap-3">
@@ -126,7 +125,7 @@ export default function Dashboard() {
             placeholder="New presentation title..."
             className="max-w-sm"
           />
-          <Button type="submit" disabled={createMutation.isPending}>
+          <Button type="submit" className="gradient-bg glow-button text-primary-foreground" disabled={createMutation.isPending}>
             <Plus className="mr-2 h-4 w-4" />
             Create
           </Button>
@@ -135,15 +134,15 @@ export default function Dashboard() {
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-40 animate-pulse rounded-xl bg-muted" />
+              <Skeleton key={i} className="h-40 rounded-2xl" />
             ))}
           </div>
         ) : presentations.length === 0 ? (
-          <Card className="border-dashed">
+          <Card className="border-dashed glass-card">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
               <Presentation className="mb-4 h-12 w-12 text-muted-foreground/50" />
               <p className="text-lg font-medium text-muted-foreground">No presentations yet</p>
-              <p className="text-sm text-muted-foreground/70">Create your first one above</p>
+              <p className="font-body text-sm text-muted-foreground/70">Create your first one above</p>
             </CardContent>
           </Card>
         ) : (
@@ -159,18 +158,19 @@ export default function Dashboard() {
                   transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <Card
-                    className="group cursor-pointer transition-shadow hover:shadow-lg hover:shadow-primary/5"
+                    className="glass-card-hover group cursor-pointer rounded-2xl"
                     onClick={() => navigate(`/edit/${p.id}`)}
                   >
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg leading-tight">{p.title}</CardTitle>
-                      <CardDescription>
+                      <CardDescription className="font-body">
                         Last edited {new Date(p.updated_at).toLocaleDateString()}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex gap-2">
                       <Button
                         size="sm"
+                        className="gradient-bg text-primary-foreground"
                         onClick={(e) => {
                           e.stopPropagation();
                           startSession.mutate(p.id);
