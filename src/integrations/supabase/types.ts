@@ -195,7 +195,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      close_stale_sessions: { Args: never; Returns: undefined }
     }
     Enums: {
       slide_type: "multiple_choice" | "word_cloud" | "open_text"
