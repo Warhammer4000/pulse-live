@@ -32,6 +32,8 @@ export default function DashboardOverview() {
   const { data: sessions = [] } = useQuery({
     queryKey: ["all-sessions"],
     queryFn: async () => {
+      // Close stale sessions (24h+) before fetching
+      await supabase.rpc("close_stale_sessions");
       const presIds = presentations.map((p) => p.id);
       if (presIds.length === 0) return [];
       const { data, error } = await supabase.from("sessions").select("*").in("presentation_id", presIds).order("created_at", { ascending: false });

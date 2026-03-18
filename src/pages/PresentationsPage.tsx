@@ -28,6 +28,8 @@ export default function PresentationsPage() {
   const { data: presentations = [], isLoading } = useQuery({
     queryKey: ["presentations"],
     queryFn: async () => {
+      // Close stale sessions (24h+) before loading
+      await supabase.rpc("close_stale_sessions");
       const { data, error } = await supabase.from("presentations").select("*").order("updated_at", { ascending: false });
       if (error) throw error;
       return data as PresentationRow[];
