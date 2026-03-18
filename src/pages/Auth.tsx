@@ -4,11 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { BarChart3, Cloud, MessageSquare, Zap } from "lucide-react";
+import { BarChart3, Cloud, MessageSquare, Zap, ArrowRight } from "lucide-react";
 
 const bullets = [
   { icon: BarChart3, text: "Real-time polls with live results" },
@@ -78,31 +77,26 @@ export default function Auth() {
   const formKey = showReset ? "reset" : isLogin ? "login" : "signup";
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[#080810]">
       {/* Left brand panel */}
-      <div className="relative hidden lg:flex lg:w-1/2 flex-col justify-between p-12 overflow-hidden">
-        {/* Gradient background */}
-        <div className="absolute inset-0 gradient-bg" />
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/20" />
-
-        {/* Floating orbs */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-white/10 blur-[80px] animate-float" />
-          <div className="absolute bottom-1/3 right-1/4 h-48 w-48 rounded-full bg-white/8 blur-[60px] animate-float" style={{ animationDelay: "3s" }} />
-        </div>
+      <div className="relative hidden lg:flex lg:w-1/2 flex-col justify-between p-12 overflow-hidden border-r border-white/5">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_30%_40%,rgba(139,92,246,0.2),transparent)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,#080810_100%)]" />
 
         <div className="relative z-10">
-          <h1 className="text-2xl font-bold text-white">
-            Pulse<span className="text-white/70">Live</span>
-          </h1>
+          <span className="text-xl font-bold tracking-tight text-white">
+            Pulse<span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Live</span>
+          </span>
         </div>
 
-        <div className="relative z-10 space-y-8">
+        <div className="relative z-10 space-y-10">
           <div>
             <h2 className="text-4xl font-bold text-white tracking-tight leading-tight">
-              Engage your audience<br />like never before
+              Engage your audience<br />
+              <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">like never before</span>
             </h2>
-            <p className="mt-4 text-lg text-white/70 font-body max-w-md">
+            <p className="mt-4 text-white/50 leading-relaxed max-w-md">
               Create interactive presentations that captivate. Get real-time feedback from any device.
             </p>
           </div>
@@ -110,24 +104,22 @@ export default function Auth() {
           <div className="space-y-4">
             {bullets.map((b) => (
               <div key={b.text} className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
-                  <b.icon className="h-4.5 w-4.5 text-white" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/15 border border-violet-500/20">
+                  <b.icon className="h-4 w-4 text-violet-400" />
                 </div>
-                <span className="font-body text-white/85">{b.text}</span>
+                <span className="text-white/70 text-sm">{b.text}</span>
               </div>
             ))}
           </div>
         </div>
 
         <div className="relative z-10">
-          <p className="text-sm text-white/40 font-body">
-            Trusted by educators, facilitators, and speakers worldwide
-          </p>
+          <p className="text-sm text-white/30">Trusted by educators, facilitators, and speakers worldwide</p>
         </div>
       </div>
 
       {/* Right form panel */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12 bg-background">
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -136,85 +128,118 @@ export default function Auth() {
         >
           {/* Mobile logo */}
           <div className="mb-8 text-center lg:hidden">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Pulse<span className="gradient-text">Live</span>
-            </h1>
-            <p className="mt-2 text-muted-foreground font-body">
-              Interactive presentations, real-time feedback
-            </p>
+            <span className="text-3xl font-bold tracking-tight text-white">
+              Pulse<span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Live</span>
+            </span>
+            <p className="mt-2 text-white/40 text-sm">Interactive presentations, real-time feedback</p>
           </div>
 
-          <Card className="glass-card border-border/40 shadow-xl">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-xl">
-                {showReset ? "Reset Password" : isLogin ? "Welcome back" : "Create your account"}
-              </CardTitle>
-              <CardDescription className="font-body">
+          <div className="rounded-2xl border border-white/8 bg-white/5 p-8">
+            <div className="mb-6">
+              <h1 className="text-xl font-semibold text-white">
+                {showReset ? "Reset password" : isLogin ? "Welcome back" : "Create your account"}
+              </h1>
+              <p className="mt-1 text-sm text-white/40">
                 {showReset
                   ? "Enter your email to receive a reset link"
                   : isLogin
                     ? "Sign in to manage your presentations"
                     : "Start creating interactive presentations"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={formKey}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {showReset ? (
-                    <form onSubmit={handlePasswordReset} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="reset-email">Email</Label>
-                        <Input id="reset-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+              </p>
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={formKey}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {showReset ? (
+                  <form onSubmit={handlePasswordReset} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="reset-email" className="text-white/60 text-sm">Email</Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        required
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40" disabled={loading}>
+                      {loading ? "Sending..." : "Send Reset Link"}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <button type="button" onClick={() => setShowReset(false)} className="w-full text-sm text-white/40 hover:text-white/70 transition-colors py-1">
+                      Back to sign in
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleAuth} className="space-y-4">
+                    {!isLogin && (
+                      <div className="space-y-1.5">
+                        <Label htmlFor="displayName" className="text-white/60 text-sm">Display Name</Label>
+                        <Input
+                          id="displayName"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          placeholder="Your name"
+                          required={!isLogin}
+                          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                        />
                       </div>
-                      <Button type="submit" className="w-full gradient-bg glow-button text-primary-foreground" disabled={loading}>
-                        {loading ? "Sending..." : "Send Reset Link"}
-                      </Button>
-                      <Button type="button" variant="ghost" className="w-full" onClick={() => setShowReset(false)}>
-                        Back to login
-                      </Button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleAuth} className="space-y-4">
-                      {!isLogin && (
-                        <div className="space-y-2">
-                          <Label htmlFor="displayName">Display Name</Label>
-                          <Input id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" required={!isLogin} />
-                        </div>
-                      )}
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+                    )}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="email" className="text-white/60 text-sm">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        required
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password" className="text-white/60 text-sm">Password</Label>
+                        {isLogin && (
+                          <button type="button" onClick={() => setShowReset(true)} className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
+                            Forgot password?
+                          </button>
+                        )}
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
-                      </div>
-                      {isLogin && (
-                        <button type="button" onClick={() => setShowReset(true)} className="text-sm text-primary hover:underline">
-                          Forgot password?
-                        </button>
-                      )}
-                      <Button type="submit" className="w-full gradient-bg glow-button text-primary-foreground" disabled={loading}>
-                        {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
-                      </Button>
-                      <p className="text-center text-sm text-muted-foreground font-body">
-                        {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-                        <button type="button" onClick={() => setIsLogin(!isLogin)} className="font-medium text-primary hover:underline">
-                          {isLogin ? "Sign up" : "Sign in"}
-                        </button>
-                      </p>
-                    </form>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </CardContent>
-          </Card>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        required
+                        minLength={6}
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40" disabled={loading}>
+                      {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <p className="text-center text-sm text-white/40">
+                      {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+                      <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-violet-400 hover:text-violet-300 transition-colors font-medium">
+                        {isLogin ? "Sign up" : "Sign in"}
+                      </button>
+                    </p>
+                  </form>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </motion.div>
       </div>
     </div>

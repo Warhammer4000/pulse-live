@@ -17,7 +17,6 @@ import PresenterView from "./pages/PresenterView";
 import SessionHistory from "./pages/SessionHistory";
 import JoinSession from "./pages/JoinSession";
 import LiveSession from "./pages/LiveSession";
-import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import { SmartHome } from "@/components/SmartHome";
 
