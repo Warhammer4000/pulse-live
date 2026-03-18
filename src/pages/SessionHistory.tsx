@@ -74,8 +74,28 @@ export default function SessionHistory() {
   const { presentationId } = useParams<{ presentationId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
+
+  const reopenSession = useMutation({
+    mutationFn: async (sessionId: string) => {
+      const { data, error } = await supabase
+        .from("sessions")
+        .update({ is_active: true })
+        .eq("id", sessionId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["sessions-history", presentationId] });
+      navigate(`/present/${data.id}`);
+    },
+    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+  });
 
   const { data: presentation } = useQuery({
     queryKey: ["presentation", presentationId],
