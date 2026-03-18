@@ -73,6 +73,21 @@ export default function PresentationsPage() {
 
   const startSession = useMutation({
     mutationFn: async (presentationId: string) => {
+      // Check for existing active session first
+      const { data: existingSession } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("presentation_id", presentationId)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingSession) {
+        return existingSession;
+      }
+
+      // No active session — create a new one
       const joinCode = Math.floor(100000 + Math.random() * 900000).toString();
       const { data: slides } = await supabase
         .from("slides")

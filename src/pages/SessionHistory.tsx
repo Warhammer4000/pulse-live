@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Download, BarChart3, Cloud, MessageSquare, Calendar, Users, Hash } from "lucide-react";
+import { ArrowLeft, Download, BarChart3, Cloud, MessageSquare, Calendar, Users, Hash, RotateCcw, Play } from "lucide-react";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
 import { WordCloudViz } from "@/components/visualizations/WordCloudViz";
 import { ResponseFeed } from "@/components/visualizations/ResponseFeed";
