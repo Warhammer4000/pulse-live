@@ -382,6 +382,28 @@ export default function PresenterView() {
             <RotateCcw className="mr-1 h-3 w-3" /> Reset
           </Button>
           <div className="h-5 w-px bg-border/50 mx-1" />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                <StopCircle className="mr-1 h-3 w-3" /> End
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>End this session?</AlertDialogTitle>
+                <AlertDialogDescription className="font-body">
+                  This will disconnect all audience members and mark the session as complete. Responses are saved and you can review them later.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={endSession} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  End Session
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <div className="h-5 w-px bg-border/50 mx-1" />
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleFullscreen}>
             {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
           </Button>
