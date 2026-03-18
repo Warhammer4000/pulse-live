@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SmartHome } from "@/components/SmartHome";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
@@ -26,7 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/" element={<SmartHome />} />
             <Route path="/edit/:id" element={<ProtectedRoute><SlideEditor /></ProtectedRoute>} />
             <Route path="/present/:sessionId" element={<ProtectedRoute><PresenterView /></ProtectedRoute>} />
             <Route path="/join" element={<JoinSession />} />
