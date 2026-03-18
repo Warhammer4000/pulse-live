@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Lock, Unlock, RotateCcw, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import type { Tables } from "@/integrations/supabase/types";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
 import { WordCloudViz } from "@/components/visualizations/WordCloudViz";
@@ -200,14 +201,18 @@ export default function PresenterView() {
       {/* Footer with join info + navigation */}
       <div className="border-t border-border/30 bg-card/50 backdrop-blur-xl">
         <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <QRCodeSVG
+              value={`${window.location.origin}/join/${session.join_code}`}
+              size={80}
+              bgColor="transparent"
+              fgColor="hsl(var(--foreground))"
+              level="M"
+            />
             <div>
               <p className="text-xs text-muted-foreground">Join at</p>
-              <p className="text-sm font-medium">{window.location.origin}/join</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Code</p>
-              <p className="font-mono text-4xl font-bold tracking-widest text-primary">
+              <p className="text-sm font-medium">{window.location.origin}/join/{session.join_code}</p>
+              <p className="font-mono text-4xl font-bold tracking-widest text-primary mt-1">
                 {session.join_code}
               </p>
             </div>
