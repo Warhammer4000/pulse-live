@@ -304,7 +304,7 @@ export default function PresenterView() {
       .from("sessions")
       .update({ is_active: false })
       .eq("id", session.id);
-    navigate("/");
+    navigate("/dashboard");
   };
 
   // Keyboard navigation
