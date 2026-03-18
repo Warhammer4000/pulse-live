@@ -13,6 +13,7 @@ import SlideEditor from "./pages/SlideEditor";
 import PresenterView from "./pages/PresenterView";
 import JoinSession from "./pages/JoinSession";
 import LiveSession from "./pages/LiveSession";
+import SessionHistory from "./pages/SessionHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
