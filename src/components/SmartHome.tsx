@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import Dashboard from "@/pages/Dashboard";
+import { Navigate } from "react-router-dom";
 import LandingPage from "@/pages/LandingPage";
 
 export function SmartHome() {
@@ -13,5 +13,5 @@ export function SmartHome() {
     );
   }
 
-  return user ? <Dashboard /> : <LandingPage />;
+  return user ? <Navigate to="/dashboard" replace /> : <LandingPage />;
 }
