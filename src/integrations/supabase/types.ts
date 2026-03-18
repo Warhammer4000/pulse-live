@@ -14,7 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      presentations: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      responses: {
+        Row: {
+          created_at: string
+          id: string
+          participant_id: string
+          session_id: string
+          slide_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_id: string
+          session_id: string
+          slide_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_id?: string
+          session_id?: string
+          slide_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "responses_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "responses_slide_id_fkey"
+            columns: ["slide_id"]
+            isOneToOne: false
+            referencedRelation: "slides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          active_slide_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          join_code: string
+          presentation_id: string
+          voting_locked: boolean
+        }
+        Insert: {
+          active_slide_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          join_code: string
+          presentation_id: string
+          voting_locked?: boolean
+        }
+        Update: {
+          active_slide_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          join_code?: string
+          presentation_id?: string
+          voting_locked?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_active_slide_id_fkey"
+            columns: ["active_slide_id"]
+            isOneToOne: false
+            referencedRelation: "slides"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "presentations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slides: {
+        Row: {
+          created_at: string
+          id: string
+          options: Json | null
+          order: number
+          presentation_id: string
+          question: string
+          type: Database["public"]["Enums"]["slide_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          options?: Json | null
+          order?: number
+          presentation_id: string
+          question?: string
+          type?: Database["public"]["Enums"]["slide_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          options?: Json | null
+          order?: number
+          presentation_id?: string
+          question?: string
+          type?: Database["public"]["Enums"]["slide_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slides_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "presentations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +198,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      slide_type: "multiple_choice" | "word_cloud" | "open_text"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +325,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      slide_type: ["multiple_choice", "word_cloud", "open_text"],
+    },
   },
 } as const
