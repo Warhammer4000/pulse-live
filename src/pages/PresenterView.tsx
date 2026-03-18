@@ -304,7 +304,7 @@ export default function PresenterView() {
       .from("sessions")
       .update({ is_active: false })
       .eq("id", session.id);
-    navigate("/");
+    navigate("/dashboard");
   };
 
   // Keyboard navigation
@@ -337,7 +337,7 @@ export default function PresenterView() {
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-border/30 bg-card/30 backdrop-blur-xl px-4 py-2">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
             <ArrowLeft className="mr-1 h-4 w-4" /> Exit
           </Button>
           <div className="h-5 w-px bg-border/50" />

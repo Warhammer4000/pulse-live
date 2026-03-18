@@ -5,16 +5,21 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { SmartHome } from "@/components/SmartHome";
+import DashboardLayout from "@/components/DashboardLayout";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
-import Dashboard from "./pages/Dashboard";
+import DashboardOverview from "./pages/DashboardOverview";
+import PresentationsPage from "./pages/PresentationsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import SettingsPage from "./pages/SettingsPage";
 import SlideEditor from "./pages/SlideEditor";
 import PresenterView from "./pages/PresenterView";
+import SessionHistory from "./pages/SessionHistory";
 import JoinSession from "./pages/JoinSession";
 import LiveSession from "./pages/LiveSession";
-import SessionHistory from "./pages/SessionHistory";
+import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
+import { SmartHome } from "@/components/SmartHome";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +31,18 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<SmartHome />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/" element={<SmartHome />} />
+
+            {/* Dashboard with sidebar layout */}
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+              <Route index element={<DashboardOverview />} />
+              <Route path="presentations" element={<PresentationsPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+
             <Route path="/edit/:id" element={<ProtectedRoute><SlideEditor /></ProtectedRoute>} />
             <Route path="/present/:sessionId" element={<ProtectedRoute><PresenterView /></ProtectedRoute>} />
             <Route path="/history/:presentationId" element={<ProtectedRoute><SessionHistory /></ProtectedRoute>} />
