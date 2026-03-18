@@ -32,6 +32,7 @@ import {
   Play,
   Pause,
 } from "lucide-react";
+import { StopCircle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import type { Tables } from "@/integrations/supabase/types";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
