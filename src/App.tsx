@@ -13,6 +13,7 @@ import SlideEditor from "./pages/SlideEditor";
 import PresenterView from "./pages/PresenterView";
 import JoinSession from "./pages/JoinSession";
 import LiveSession from "./pages/LiveSession";
+import SessionHistory from "./pages/SessionHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/" element={<SmartHome />} />
             <Route path="/edit/:id" element={<ProtectedRoute><SlideEditor /></ProtectedRoute>} />
             <Route path="/present/:sessionId" element={<ProtectedRoute><PresenterView /></ProtectedRoute>} />
+            <Route path="/history/:presentationId" element={<ProtectedRoute><SessionHistory /></ProtectedRoute>} />
             <Route path="/join" element={<JoinSession />} />
             <Route path="/join/:code" element={<JoinSession />} />
             <Route path="/live/:code" element={<LiveSession />} />

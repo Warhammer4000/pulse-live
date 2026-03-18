@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Presentation, Trash2, LogOut, Play } from "lucide-react";
+import { Plus, Presentation, Trash2, LogOut, Play, BarChart3 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type PresentationRow = Tables<"presentations">;
@@ -179,6 +179,17 @@ export default function Dashboard() {
                       >
                         <Play className="mr-1 h-3 w-3" />
                         Present
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/history/${p.id}`);
+                        }}
+                      >
+                        <BarChart3 className="mr-1 h-3 w-3" />
+                        History
                       </Button>
                       <Button
                         size="sm"
