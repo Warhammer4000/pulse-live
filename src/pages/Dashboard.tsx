@@ -182,6 +182,17 @@ export default function Dashboard() {
                       </Button>
                       <Button
                         size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/history/${p.id}`);
+                        }}
+                      >
+                        <BarChart3 className="mr-1 h-3 w-3" />
+                        History
+                      </Button>
+                      <Button
+                        size="sm"
                         variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation();
