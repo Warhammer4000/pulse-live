@@ -312,6 +312,7 @@ export default function PresenterView() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
+      <PresenterFloatingReactions sessionId={session.id} />
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-border/30 bg-card/30 backdrop-blur-xl px-4 py-2">
         <div className="flex items-center gap-3">
