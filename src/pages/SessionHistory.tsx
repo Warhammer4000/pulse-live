@@ -219,26 +219,47 @@ export default function SessionHistory() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-muted-foreground mr-1">Session:</span>
               {sessions.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => {
-                    setSelectedSessionId(s.id);
-                    setSelectedSlideId(null);
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all",
-                    (selectedSession?.id === s.id)
-                      ? "border-primary/30 bg-primary/10 text-primary"
-                      : "border-border/50 bg-card/50 text-muted-foreground hover:bg-muted"
+                <div key={s.id} className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      setSelectedSessionId(s.id);
+                      setSelectedSlideId(null);
+                    }}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all",
+                      (selectedSession?.id === s.id)
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-border/50 bg-card/50 text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Calendar className="h-3.5 w-3.5" />
+                    {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    <span className="font-mono text-xs opacity-60">#{s.join_code}</span>
+                    {s.is_active && (
+                      <span className="flex h-2 w-2 rounded-full bg-accent" />
+                    )}
+                  </button>
+                  {s.is_active ? (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-2 text-primary"
+                      onClick={() => navigate(`/present/${s.id}`)}
+                    >
+                      <Play className="h-3 w-3 mr-1" /> Resume
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-2 text-muted-foreground"
+                      onClick={() => reopenSession.mutate(s.id)}
+                      disabled={reopenSession.isPending}
+                    >
+                      <RotateCcw className="h-3 w-3 mr-1" /> Reopen
+                    </Button>
                   )}
-                >
-                  <Calendar className="h-3.5 w-3.5" />
-                  {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  <span className="font-mono text-xs opacity-60">#{s.join_code}</span>
-                  {s.is_active && (
-                    <span className="flex h-2 w-2 rounded-full bg-accent" />
-                  )}
-                </button>
+                </div>
               ))}
             </div>
 
