@@ -32,6 +32,54 @@ type SessionRow = Tables<"sessions">;
 type SlideRow = Tables<"slides">;
 type ResponseRow = Tables<"responses">;
 
+interface FloatingEmoji {
+  id: string;
+  emoji: string;
+  x: number;
+}
+
+function PresenterFloatingReactions({ sessionId }: { sessionId: string }) {
+  const [emojis, setEmojis] = useState<FloatingEmoji[]>([]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`presenter-reactions-${sessionId}`)
+      .on("broadcast", { event: "reaction" }, ({ payload }) => {
+        const newEmoji: FloatingEmoji = {
+          id: crypto.randomUUID(),
+          emoji: payload.emoji,
+          x: 5 + Math.random() * 15,
+        };
+        setEmojis((prev) => [...prev.slice(-30), newEmoji]);
+        setTimeout(() => {
+          setEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
+        }, 3000);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [sessionId]);
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
+      <AnimatePresence>
+        {emojis.map((e) => (
+          <motion.div
+            key={e.id}
+            initial={{ opacity: 1, y: "80vh", x: `${e.x}vw`, scale: 0.8 }}
+            animate={{ opacity: 0, y: "10vh", scale: 1.2 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 3, ease: "easeOut" }}
+            className="absolute text-2xl"
+          >
+            {e.emoji}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
