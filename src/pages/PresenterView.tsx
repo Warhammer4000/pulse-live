@@ -298,6 +298,15 @@ export default function PresenterView() {
     queryClient.invalidateQueries({ queryKey: ["responses", sessionId] });
   };
 
+  const endSession = async () => {
+    if (!session) return;
+    await supabase
+      .from("sessions")
+      .update({ is_active: false })
+      .eq("id", session.id);
+    navigate("/");
+  };
+
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
