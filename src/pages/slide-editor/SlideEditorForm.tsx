@@ -17,7 +17,7 @@ interface Props {
   readonly onTypeChange: (type: SlideType) => void;
   readonly onDuplicate: () => void;
   readonly onDelete: () => void;
-  readonly onSave: (question: string, options: unknown) => void;
+  readonly onSave: (question: string, options: unknown, imageUrl: string) => void;
 }
 
 export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange, onDuplicate, onDelete, onSave }: Props) {
