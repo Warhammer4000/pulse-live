@@ -48,21 +48,31 @@ function Check-Prerequisites {
         Write-Success "supabase CLI  $(Invoke-Supabase --version 2>&1)"
     } else {
         Write-Warn "supabase CLI not found."
-        if (Ask-YesNo "Install supabase CLI now?  (via Scoop)") {
-            if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
-                Write-Step "Scoop not found — installing Scoop first..."
-                Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-                Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+        $installHint = if ($IsWindows) { "via Scoop" } else { "via Homebrew" }
+        if (Ask-YesNo "Install supabase CLI now?  ($installHint)") {
+            if ($IsWindows) {
+                if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
+                    Write-Step "Scoop not found — installing Scoop first..."
+                    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+                    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+                    $env:PATH = "$env:USERPROFILE\scoop\shims;" + $env:PATH
+                }
+                Write-Step "Installing supabase CLI via Scoop..."
+                scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+                scoop install supabase
                 $env:PATH = "$env:USERPROFILE\scoop\shims;" + $env:PATH
+            } else {
+                if (-not (Get-Command brew -ErrorAction SilentlyContinue)) {
+                    Write-Err "Homebrew not found. Install it from https://brew.sh then re-run."
+                    exit 1
+                }
+                Write-Step "Installing supabase CLI via Homebrew..."
+                brew install supabase/tap/supabase
             }
-            Write-Step "Installing supabase CLI via Scoop..."
-            scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-            scoop install supabase
-            $env:PATH = "$env:USERPROFILE\scoop\shims;" + $env:PATH
             if (Get-Command supabase -ErrorAction SilentlyContinue) {
                 Write-Success "supabase CLI installed"
             } else {
-                Write-Err "Installation failed. Try running: scoop install supabase"
+                Write-Err "Installation failed."
                 exit 1
             }
         } else {

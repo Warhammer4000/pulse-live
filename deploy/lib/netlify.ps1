@@ -1,6 +1,12 @@
 function Invoke-NetlifyInteractive([string[]]$argList) {
-    $cmdArgs = @("/c", "netlify") + $argList
-    Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -NoNewWindow -PassThru -Wait | Out-Null
+    if ($IsWindows) {
+        # netlify on Windows is a .cmd wrapper — must go through cmd.exe
+        $cmdArgs = @("/c", "netlify") + $argList
+        Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -NoNewWindow -PassThru -Wait | Out-Null
+    } else {
+        $netlifyBin = (Get-Command netlify -ErrorAction SilentlyContinue)?.Source
+        Start-Process -FilePath $netlifyBin -ArgumentList $argList -NoNewWindow -PassThru -Wait | Out-Null
+    }
 }
 
 function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
@@ -111,9 +117,7 @@ function Invoke-NetlifyCreate {
 
     # Fetch teams to pass --account-slug, bypassing the broken interactive
     # team picker in netlify CLI (crashes in non-native TTY on Windows)
-    $accountSlug = Get-NetlifyAccountSlug
-
-    Write-Host "  Site name [$script:DefaultProjectName]: " -ForegroundColor White -NoNewline
+    $accountSlug = Get-NetlifyAccountSlug    Write-Host "  Site name [$script:DefaultProjectName]: " -ForegroundColor White -NoNewline
     $input = Read-Host
     $siteName = if ($input.Trim() -ne "") { $input.Trim() } else { $script:DefaultProjectName }
 
@@ -127,7 +131,12 @@ function Invoke-NetlifyCreate {
 
 function Get-NetlifyAccountSlug {
     try {
-        $teams = (cmd /c netlify api listAccountsForUser 2>&1) -join "`n" | ConvertFrom-Json
+        $raw = if ($IsWindows) {
+            (cmd /c netlify api listAccountsForUser 2>&1) -join "`n"
+        } else {
+            (netlify api listAccountsForUser 2>&1) -join "`n"
+        }
+        $teams = $raw | ConvertFrom-Json
         if ($teams.Count -eq 1) {
             Write-Success "Team: $($teams[0].name)"
             return $teams[0].slug

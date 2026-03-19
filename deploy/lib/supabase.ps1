@@ -1,8 +1,14 @@
 function Get-SupabasePath {
     $cmd = Get-Command supabase -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
+    # Windows: scoop shim
     $shimExe = "$env:USERPROFILE\scoop\shims\supabase.exe"
     if (Test-Path $shimExe) { return $shimExe }
+    # Mac/Linux: homebrew
+    $brewBin = "/opt/homebrew/bin/supabase"
+    if (Test-Path $brewBin) { return $brewBin }
+    $brewBin2 = "/usr/local/bin/supabase"
+    if (Test-Path $brewBin2) { return $brewBin2 }
     throw "supabase CLI not found"
 }
 
