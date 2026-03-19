@@ -17,7 +17,7 @@ interface Props {
   readonly onTypeChange: (type: SlideType) => void;
   readonly onDuplicate: () => void;
   readonly onDelete: () => void;
-  readonly onSave: (question: string, options: unknown) => void;
+  readonly onSave: (question: string, options: unknown, imageUrl: string) => void;
 }
 
 export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange, onDuplicate, onDelete, onSave }: Props) {
@@ -51,10 +51,10 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
       } else {
         opts = [];
       }
-      onSave(localQuestion, opts);
+      onSave(localQuestion, opts, imageUrl);
     }, 500);
     return () => clearTimeout(timer);
-  }, [localQuestion, localOptions, ratingConfig, pollStyle]);
+  }, [localQuestion, localOptions, ratingConfig, pollStyle, imageUrl]);
 
   const addOption = () =>
     setLocalOptions((prev) => [...prev, { text: `Option ${String.fromCodePoint(65 + prev.length)}` }]);
