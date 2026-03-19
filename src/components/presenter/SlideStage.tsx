@@ -2,6 +2,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
 import { WordCloudViz } from "@/components/visualizations/WordCloudViz";
 import { ResponseFeed } from "@/components/visualizations/ResponseFeed";
+import { RatingViz } from "@/components/visualizations/RatingViz";
+import { QuizViz } from "@/components/visualizations/QuizViz";
+import { RankingViz } from "@/components/visualizations/RankingViz";
+import { PollViz } from "@/components/visualizations/PollViz";
+import { parseOptionItems, optionTexts, parseRatingConfig } from "@/pages/slide-editor/types";
 import type { Tables } from "@/integrations/supabase/types";
 
 type SlideRow = Tables<"slides">;
@@ -13,17 +18,11 @@ interface Props {
   showResults: boolean;
 }
 
-function parseOptions(raw: SlideRow["options"]): string[] {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw as string[];
-  if (typeof raw === "string") {
-    try { return JSON.parse(raw); } catch { return []; }
-  }
-  return [];
-}
-
 export function SlideStage({ activeSlide, responses, showResults }: Readonly<Props>) {
-  const options = parseOptions(activeSlide.options);
+  const optionItems = parseOptionItems(activeSlide.options);
+  const options = optionTexts(optionItems);
+  const ratingConfig = parseRatingConfig(activeSlide.options);
+  const imageUrl = (activeSlide as any).image_url;
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-8 overflow-hidden">
@@ -36,6 +35,9 @@ export function SlideStage({ activeSlide, responses, showResults }: Readonly<Pro
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] as const }}
           className="w-full max-w-4xl text-center"
         >
+          {imageUrl && (
+            <img src={imageUrl} alt="" className="mx-auto mb-6 max-h-48 rounded-2xl border border-white/10 object-cover" loading="lazy" />
+          )}
           <h2
             className="mb-8 text-5xl font-semibold tracking-tight text-white"
             style={{ textWrap: "balance" as React.CSSProperties["textWrap"] }}
@@ -51,6 +53,10 @@ export function SlideStage({ activeSlide, responses, showResults }: Readonly<Pro
               {activeSlide.type === "multiple_choice" && <BarChartViz options={options} responses={responses} />}
               {activeSlide.type === "word_cloud" && <WordCloudViz responses={responses} />}
               {activeSlide.type === "open_text" && <ResponseFeed responses={responses} />}
+              {activeSlide.type === "rating_scale" && <RatingViz min={ratingConfig.min} max={ratingConfig.max} responses={responses} />}
+              {activeSlide.type === "quiz" && <QuizViz options={optionItems} responses={responses} />}
+              {activeSlide.type === "ranking" && <RankingViz options={options} responses={responses} />}
+              {activeSlide.type === "poll" && <PollViz options={options} responses={responses} />}
             </motion.div>
           )}
         </motion.div>
