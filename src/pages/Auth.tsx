@@ -16,6 +16,26 @@ const bullets = [
   { icon: Zap, text: "No app downloads for participants" },
 ];
 
+function getFormKey(showReset: boolean, isLogin: boolean) {
+  if (showReset) return "reset";
+  return isLogin ? "login" : "signup";
+}
+
+function getTitle(showReset: boolean, isLogin: boolean) {
+  if (showReset) return "Reset password";
+  return isLogin ? "Welcome back" : "Create your account";
+}
+
+function getSubtitle(showReset: boolean, isLogin: boolean) {
+  if (showReset) return "Enter your email to receive a reset link";
+  return isLogin ? "Sign in to manage your presentations" : "Start creating interactive presentations";
+}
+
+function getSubmitLabel(loading: boolean, isLogin: boolean) {
+  if (loading) return "Loading...";
+  return isLogin ? "Sign In" : "Create Account";
+}
+
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -30,25 +50,33 @@ export default function Auth() {
   if (authLoading) return null;
   if (user) return <Navigate to="/" replace />;
 
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    navigate("/");
+  };
+
+  const handleSignup = async () => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { display_name: displayName },
+        emailRedirectTo: globalThis.location.origin,
+      },
+    });
+    if (error) throw error;
+    toast({ title: "Check your email", description: "We sent you a confirmation link to verify your account." });
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate("/");
+        await handleLogin();
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { display_name: displayName },
-            emailRedirectTo: window.location.origin,
-          },
-        });
-        if (error) throw error;
-        toast({ title: "Check your email", description: "We sent you a confirmation link to verify your account." });
+        await handleSignup();
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -62,7 +90,7 @@ export default function Auth() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${globalThis.location.origin}/reset-password`,
       });
       if (error) throw error;
       toast({ title: "Reset link sent", description: "Check your email for the password reset link." });
@@ -74,7 +102,10 @@ export default function Auth() {
     }
   };
 
-  const formKey = showReset ? "reset" : isLogin ? "login" : "signup";
+  const formKey = getFormKey(showReset, isLogin);
+  const title = getTitle(showReset, isLogin);
+  const subtitle = getSubtitle(showReset, isLogin);
+  const submitLabel = getSubmitLabel(loading, isLogin);
 
   return (
     <div className="flex min-h-screen bg-[#080810]">
@@ -136,16 +167,8 @@ export default function Auth() {
 
           <div className="rounded-2xl border border-white/8 bg-white/5 p-8">
             <div className="mb-6">
-              <h1 className="text-xl font-semibold text-white">
-                {showReset ? "Reset password" : isLogin ? "Welcome back" : "Create your account"}
-              </h1>
-              <p className="mt-1 text-sm text-white/40">
-                {showReset
-                  ? "Enter your email to receive a reset link"
-                  : isLogin
-                    ? "Sign in to manage your presentations"
-                    : "Start creating interactive presentations"}
-              </p>
+              <h1 className="text-xl font-semibold text-white">{title}</h1>
+              <p className="mt-1 text-sm text-white/40">{subtitle}</p>
             </div>
 
             <AnimatePresence mode="wait">
@@ -226,7 +249,7 @@ export default function Auth() {
                       />
                     </div>
                     <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40" disabled={loading}>
-                      {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
+                      {submitLabel}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                     <p className="text-center text-sm text-white/40">
