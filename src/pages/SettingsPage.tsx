@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme, THEME_OPTIONS } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { User, Lock, Save } from "lucide-react";
+import { User, Lock, Save, Palette, Check } from "lucide-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -18,6 +19,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 export default function SettingsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [displayName, setDisplayName] = useState(user?.user_metadata?.display_name || "");
   const [savingProfile, setSavingProfile] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -81,7 +83,7 @@ export default function SettingsPage() {
         {/* Profile */}
         <motion.div variants={fadeUp} className="rounded-2xl border border-white/8 bg-white/5 p-6">
           <div className="flex items-center gap-2 mb-1">
-            <User className="h-4 w-4 text-violet-400" />
+            <User className="h-4 w-4 accent-text" />
             <h2 className="text-base font-semibold text-white">Profile</h2>
           </div>
           <p className="text-sm text-white/40 mb-6">Update your personal information</p>
@@ -89,7 +91,7 @@ export default function SettingsPage() {
           <form onSubmit={handleUpdateProfile} className="space-y-5">
             <div className="flex items-center gap-4">
               <Avatar className="h-14 w-14">
-                <AvatarFallback className="bg-violet-500/20 text-violet-300 text-lg font-semibold">{initials}</AvatarFallback>
+                <AvatarFallback className="accent-surface accent-text text-lg font-semibold">{initials}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-medium text-white">{displayName || "No name set"}</p>
@@ -104,7 +106,7 @@ export default function SettingsPage() {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your name"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
               />
             </div>
 
@@ -121,7 +123,7 @@ export default function SettingsPage() {
             <Button
               type="submit"
               disabled={savingProfile}
-              className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+              className="accent-bg accent-bg-hover text-white border-0 accent-shadow"
             >
               <Save className="mr-2 h-4 w-4" />
               {savingProfile ? "Saving..." : "Save Changes"}
@@ -129,10 +131,47 @@ export default function SettingsPage() {
           </form>
         </motion.div>
 
+        {/* Appearance */}
+        <motion.div variants={fadeUp} className="rounded-2xl border border-white/8 bg-white/5 p-6">
+          <div className="flex items-center gap-2 mb-1">
+            <Palette className="h-4 w-4 accent-text" />
+            <h2 className="text-base font-semibold text-white">Appearance</h2>
+          </div>
+          <p className="text-sm text-white/40 mb-6">Choose your accent color theme</p>
+
+          <div className="flex flex-wrap gap-3">
+            {THEME_OPTIONS.map((opt) => {
+              const active = theme === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => setTheme(opt.id)}
+                  className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                    active
+                      ? "border-white/20 bg-white/10 text-white"
+                      : "border-white/8 bg-white/5 text-white/50 hover:bg-white/8 hover:text-white hover:border-white/15"
+                  }`}
+                >
+                  <span
+                    className="h-3.5 w-3.5 rounded-full flex items-center justify-center shrink-0"
+                    style={{
+                      backgroundColor: opt.color,
+                      boxShadow: active ? `0 0 0 2px #0d0d18, 0 0 0 4px ${opt.color}` : "none",
+                    }}
+                  >
+                    {active && <Check className="h-2 w-2 text-white" strokeWidth={3} />}
+                  </span>
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
         {/* Password */}
         <motion.div variants={fadeUp} className="rounded-2xl border border-white/8 bg-white/5 p-6">
           <div className="flex items-center gap-2 mb-1">
-            <Lock className="h-4 w-4 text-violet-400" />
+            <Lock className="h-4 w-4 accent-text" />
             <h2 className="text-base font-semibold text-white">Change Password</h2>
           </div>
           <p className="text-sm text-white/40 mb-6">Update your account password</p>
@@ -148,7 +187,7 @@ export default function SettingsPage() {
                 placeholder="••••••••"
                 minLength={6}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
               />
             </div>
             <div className="space-y-1.5">
@@ -161,7 +200,7 @@ export default function SettingsPage() {
                 placeholder="••••••••"
                 minLength={6}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
               />
             </div>
             <Button

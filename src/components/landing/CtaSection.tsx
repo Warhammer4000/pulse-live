@@ -15,7 +15,7 @@ export default function CtaSection() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={stagger}
-          className="relative rounded-3xl border border-violet-500/20 bg-gradient-to-b from-violet-500/10 to-transparent p-12 sm:p-20 text-center overflow-hidden"
+          className="relative rounded-3xl border accent-border accent-surface p-12 sm:p-20 text-center overflow-hidden"
         >
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(139,92,246,0.15),transparent)]" />
           <motion.h2 variants={fadeUp} className="relative text-4xl font-bold tracking-tight sm:text-5xl">
@@ -27,7 +27,7 @@ export default function CtaSection() {
           <motion.div variants={fadeUp} className="relative mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               size="lg"
-              className="h-12 px-10 text-base bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-xl shadow-violet-900/50"
+              className="h-12 px-10 text-base accent-bg accent-bg-hover text-white border-0 accent-shadow"
               onClick={() => navigate("/auth")}
             >
               Get started free

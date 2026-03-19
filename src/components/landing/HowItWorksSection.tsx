@@ -13,10 +13,10 @@ export default function HowItWorksSection() {
           variants={stagger}
           className="text-center mb-20"
         >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-violet-400 mb-3 tracking-widest uppercase">How it works</motion.p>
+          <motion.p variants={fadeUp} className="text-sm font-medium accent-text mb-3 tracking-widest uppercase">How it works</motion.p>
           <motion.h2 variants={fadeUp} className="text-4xl font-bold tracking-tight sm:text-5xl">
             Live in under{" "}
-            <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">a minute</span>
+            <span className="accent-gradient-text">a minute</span>
           </motion.h2>
         </motion.div>
 
@@ -27,11 +27,11 @@ export default function HowItWorksSection() {
           variants={stagger}
           className="grid gap-12 sm:grid-cols-3 relative"
         >
-          <div className="hidden sm:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+          <div className="hidden sm:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
           {steps.map((s) => (
             <motion.div key={s.n} variants={fadeUp} className="text-center relative">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-500/10 mb-6">
-                <span className="font-mono text-lg font-bold text-violet-400">{s.n}</span>
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl accent-border border accent-surface mb-6">
+                <span className="font-mono text-lg font-bold accent-text">{s.n}</span>
               </div>
               <h3 className="text-lg font-semibold mb-2">{s.title}</h3>
               <p className="text-white/50 text-sm leading-relaxed">{s.desc}</p>

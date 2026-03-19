@@ -12,10 +12,10 @@ export default function FeaturesSection() {
           variants={stagger}
           className="text-center mb-16"
         >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-violet-400 mb-3 tracking-widest uppercase">Features</motion.p>
+          <motion.p variants={fadeUp} className="text-sm font-medium accent-text mb-3 tracking-widest uppercase">Features</motion.p>
           <motion.h2 variants={fadeUp} className="text-4xl font-bold tracking-tight sm:text-5xl">
             Three ways to engage,{" "}
-            <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">zero friction</span>
+            <span className="accent-gradient-text">zero friction</span>
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-white/50 max-w-lg mx-auto">
             No app downloads for your audience. Just a code or a scan.

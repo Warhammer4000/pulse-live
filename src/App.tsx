@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import Auth from "./pages/Auth";
@@ -16,13 +17,14 @@ import SlideEditor from "./pages/SlideEditor";
 import PresenterView from "./pages/PresenterView";
 import SessionHistory from "./pages/SessionHistory";
 import JoinSession from "./pages/JoinSession";
-import LiveSession from "./pages/LiveSession";
+import LiveSession from "./pages/live-session/LiveSessionPage";
 import NotFound from "./pages/NotFound";
 import { SmartHome } from "@/components/SmartHome";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  <ThemeProvider>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
@@ -54,6 +56,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

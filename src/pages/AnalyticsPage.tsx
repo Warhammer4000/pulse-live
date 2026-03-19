@@ -59,7 +59,7 @@ export default function AnalyticsPage() {
         <p className="text-white/60 font-medium">No sessions recorded yet</p>
         <p className="text-white/30 text-sm mt-1">Start a presentation to see analytics here</p>
         <Button
-          className="mt-6 bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+          className="mt-6 accent-bg accent-bg-hover text-white border-0 accent-shadow"
           onClick={() => navigate("/dashboard/presentations")}
         >
           Go to Presentations

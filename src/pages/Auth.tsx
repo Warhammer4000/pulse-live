@@ -117,7 +117,7 @@ export default function Auth() {
 
         <div className="relative z-10">
           <span className="text-xl font-bold tracking-tight text-white">
-            Pulse<span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Live</span>
+            Pulse<span className="accent-gradient-text">Live</span>
           </span>
         </div>
 
@@ -125,7 +125,7 @@ export default function Auth() {
           <div>
             <h2 className="text-4xl font-bold text-white tracking-tight leading-tight">
               Engage your audience<br />
-              <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">like never before</span>
+              <span className="accent-gradient-text">like never before</span>
             </h2>
             <p className="mt-4 text-white/50 leading-relaxed max-w-md">
               Create interactive presentations that captivate. Get real-time feedback from any device.
@@ -135,8 +135,8 @@ export default function Auth() {
           <div className="space-y-4">
             {bullets.map((b) => (
               <div key={b.text} className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/15 border border-violet-500/20">
-                  <b.icon className="h-4 w-4 text-violet-400" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl accent-surface accent-border border">
+                  <b.icon className="h-4 w-4 accent-text" />
                 </div>
                 <span className="text-white/70 text-sm">{b.text}</span>
               </div>
@@ -160,7 +160,7 @@ export default function Auth() {
           {/* Mobile logo */}
           <div className="mb-8 text-center lg:hidden">
             <span className="text-3xl font-bold tracking-tight text-white">
-              Pulse<span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Live</span>
+              Pulse<span className="accent-gradient-text">Live</span>
             </span>
             <p className="mt-2 text-white/40 text-sm">Interactive presentations, real-time feedback</p>
           </div>
@@ -190,10 +190,10 @@ export default function Auth() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
                         required
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40" disabled={loading}>
+                    <Button type="submit" className="w-full accent-bg accent-bg-hover text-white border-0 accent-shadow" disabled={loading}>
                       {loading ? "Sending..." : "Send Reset Link"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -212,7 +212,7 @@ export default function Auth() {
                           onChange={(e) => setDisplayName(e.target.value)}
                           placeholder="Your name"
                           required={!isLogin}
-                          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
                         />
                       </div>
                     )}
@@ -225,14 +225,14 @@ export default function Auth() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
                         required
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="password" className="text-white/60 text-sm">Password</Label>
                         {isLogin && (
-                          <button type="button" onClick={() => setShowReset(true)} className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
+                          <button type="button" onClick={() => setShowReset(true)} className="text-xs accent-text hover:text-white/70 transition-colors">
                             Forgot password?
                           </button>
                         )}
@@ -245,16 +245,16 @@ export default function Auth() {
                         placeholder="••••••••"
                         required
                         minLength={6}
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40" disabled={loading}>
+                    <Button type="submit" className="w-full accent-bg accent-bg-hover text-white border-0 accent-shadow" disabled={loading}>
                       {submitLabel}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                     <p className="text-center text-sm text-white/40">
                       {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-                      <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-violet-400 hover:text-violet-300 transition-colors font-medium">
+                      <button type="button" onClick={() => setIsLogin(!isLogin)} className="accent-text hover:text-white/70 transition-colors font-medium">
                         {isLogin ? "Sign up" : "Sign in"}
                       </button>
                     </p>

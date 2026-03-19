@@ -38,13 +38,13 @@ export default function DashboardLayout() {
           <AnimatePresence mode="wait">
             {collapsed ? (
               <motion.span key="c" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="text-lg font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+                className="text-lg font-bold accent-gradient-text">
                 P
               </motion.span>
             ) : (
               <motion.span key="e" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="text-lg font-bold tracking-tight text-white whitespace-nowrap">
-                Pulse<span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Live</span>
+                Pulse<span className="accent-gradient-text">Live</span>
               </motion.span>
             )}
           </AnimatePresence>
@@ -60,7 +60,7 @@ export default function DashboardLayout() {
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition-all duration-150 whitespace-nowrap overflow-hidden",
                 collapsed && "justify-center px-2"
               )}
-              activeClassName="text-violet-400 bg-violet-500/10 hover:bg-violet-500/10 hover:text-violet-400"
+              activeClassName="accent-text accent-surface hover:accent-surface border-r-2 accent-border"
             >
               <item.icon className="h-4 w-4 shrink-0" />
               {!collapsed && <span>{item.title}</span>}
@@ -72,7 +72,7 @@ export default function DashboardLayout() {
           {collapsed ? (
             <div className="flex flex-col items-center gap-2 py-1">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-violet-500/20 text-violet-300 text-xs font-semibold">{initials}</AvatarFallback>
+                <AvatarFallback className="accent-surface accent-text text-xs font-semibold">{initials}</AvatarFallback>
               </Avatar>
               <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/5" onClick={signOut}>
                 <LogOut className="h-3.5 w-3.5" />
@@ -81,7 +81,7 @@ export default function DashboardLayout() {
           ) : (
             <div className="flex items-center gap-2 rounded-xl p-2 hover:bg-white/5 transition-colors">
               <Avatar className="h-8 w-8 shrink-0">
-                <AvatarFallback className="bg-violet-500/20 text-violet-300 text-xs font-semibold">{initials}</AvatarFallback>
+                <AvatarFallback className="accent-surface accent-text text-xs font-semibold">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{displayName}</p>

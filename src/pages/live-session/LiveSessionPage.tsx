@@ -108,17 +108,17 @@ export default function LiveSessionPage() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#080810] px-4">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center text-center">
           <div className="relative mb-6">
-            <motion.div className="h-16 w-16 rounded-full border-2 border-violet-500/30"
+            <motion.div className="h-16 w-16 rounded-full border-2 border-primary/30"
               animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Wifi className="h-6 w-6 text-violet-400" />
+              <Wifi className="h-6 w-6 accent-text" />
             </div>
           </div>
           <h2 className="text-xl font-semibold text-white">Connecting to session...</h2>
           <p className="mt-2 text-sm text-white/40">
             Looking for an active session with code{" "}
-            <span className="font-mono font-bold text-violet-400">{code}</span>
+            <span className="font-mono font-bold accent-text">{code}</span>
           </p>
         </motion.div>
       </div>
@@ -133,12 +133,12 @@ export default function LiveSessionPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center">
           <div className="relative mb-8">
             {[0, 1, 2].map((i) => (
-              <motion.div key={i} className="absolute inset-0 rounded-full border border-violet-500/20"
+              <motion.div key={i} className="absolute inset-0 rounded-full border border-primary/20"
                 style={{ margin: `-${i * 12}px` }}
                 animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
                 transition={{ duration: 2, repeat: Infinity, delay: i * 0.4, ease: "easeInOut" }} />
             ))}
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-violet-500/10 border border-violet-500/20">
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-full accent-surface accent-border border">
               <motion.span animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="text-3xl">🎤</motion.span>
             </div>
           </div>
@@ -165,7 +165,7 @@ export default function LiveSessionPage() {
 
       <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
         <span className="text-sm font-bold text-white">
-          Pulse<span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Live</span>
+          Pulse<span className="accent-gradient-text">Live</span>
         </span>
         <span className="flex items-center gap-1.5 text-xs text-emerald-400">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

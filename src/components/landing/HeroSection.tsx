@@ -16,14 +16,14 @@ export default function HeroSection() {
     <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-6 pt-16">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(139,92,246,0.25),transparent)]" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-violet-600/10 rounded-full blur-[120px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,#080810_100%)]" />
       </div>
 
       <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative mx-auto max-w-5xl text-center">
         <motion.div initial="hidden" animate="visible" variants={stagger}>
-          <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-300">
+          <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2 rounded-full border accent-border accent-surface px-4 py-1.5 text-sm font-medium accent-text">
             <Zap className="h-3.5 w-3.5" />
             Real-time audience engagement
           </motion.div>
@@ -31,7 +31,7 @@ export default function HeroSection() {
           <motion.h1 variants={fadeUp} className="text-6xl font-bold tracking-tight sm:text-7xl lg:text-8xl leading-[1.05]">
             Make every talk
             <br />
-            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="accent-gradient-text">
               unforgettable
             </span>
           </motion.h1>
@@ -43,7 +43,7 @@ export default function HeroSection() {
           <motion.div variants={fadeUp} className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button
               size="lg"
-              className="h-12 px-8 text-base bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-xl shadow-violet-900/50 transition-all duration-200"
+              className="h-12 px-8 text-base accent-bg accent-bg-hover text-white border-0 accent-shadow transition-all duration-200"
               onClick={() => navigate("/auth")}
             >
               Start for free
@@ -96,8 +96,8 @@ export default function HeroSection() {
                   { label: "Managing Q&A chaos", pct: 45 },
                 ].map((opt, i) => (
                   <div key={opt.label} className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/20 text-xs font-mono font-bold text-violet-300">
-                      {String.fromCharCode(65 + i)}
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg accent-surface text-xs font-mono font-bold accent-text">
+                      {String.fromCodePoint(65 + i)}
                     </span>
                     <div className="flex-1">
                       <div className="flex justify-between text-sm mb-1.5">
@@ -106,7 +106,7 @@ export default function HeroSection() {
                       </div>
                       <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                         <motion.div
-                          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500"
+                          className="h-full rounded-full accent-bg"
                           initial={{ width: 0 }}
                           animate={{ width: `${opt.pct}%` }}
                           transition={{ delay: 1.4 + i * 0.15, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -119,8 +119,7 @@ export default function HeroSection() {
               <div className="mt-6 flex items-center justify-between text-xs text-white/30">
                 <span>247 responses</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{"Live"}
                 </span>
               </div>
             </div>

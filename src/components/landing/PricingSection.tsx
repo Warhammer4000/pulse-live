@@ -17,10 +17,10 @@ export default function PricingSection() {
           variants={stagger}
           className="text-center mb-16"
         >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-violet-400 mb-3 tracking-widest uppercase">Pricing</motion.p>
+          <motion.p variants={fadeUp} className="text-sm font-medium accent-text mb-3 tracking-widest uppercase">Pricing</motion.p>
           <motion.h2 variants={fadeUp} className="text-4xl font-bold tracking-tight sm:text-5xl">
             Simple,{" "}
-            <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">transparent</span>
+            <span className="accent-gradient-text">transparent</span>
           </motion.h2>
         </motion.div>
 
@@ -35,11 +35,11 @@ export default function PricingSection() {
             <motion.div key={plan.name} variants={fadeUp}>
               <div className={`relative rounded-2xl p-8 h-full flex flex-col ${
                 plan.highlight
-                  ? "border border-violet-500/50 bg-gradient-to-b from-violet-500/15 to-violet-500/5 shadow-xl shadow-violet-900/20"
+                  ? "border accent-border accent-surface shadow-xl"
                   : "border border-white/8 bg-white/3"
               }`}>
                 {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-600 text-xs font-semibold text-white">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full accent-bg text-xs font-semibold text-white">
                     Most popular
                   </div>
                 )}
@@ -54,7 +54,7 @@ export default function PricingSection() {
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feat) => (
                     <li key={feat} className="flex items-center gap-2.5 text-sm text-white/70">
-                      <Check className="h-4 w-4 text-violet-400 shrink-0" />
+                      <Check className="h-4 w-4 accent-text shrink-0" />
                       {feat}
                     </li>
                   ))}
@@ -62,7 +62,7 @@ export default function PricingSection() {
                 <Button
                   className={`w-full ${
                     plan.highlight
-                      ? "bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+                      ? "accent-bg accent-bg-hover text-white border-0 accent-shadow"
                       : "bg-white/8 hover:bg-white/12 text-white border border-white/10"
                   }`}
                   onClick={() => navigate("/auth")}

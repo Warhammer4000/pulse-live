@@ -122,7 +122,7 @@ export default function PresentationsPage() {
             >
               <article className="group rounded-2xl border border-white/8 bg-white/5 hover:border-white/15 hover:bg-white/8 transition-all duration-200 flex flex-col gap-4 overflow-hidden">
                 <button
-                  className="flex items-start justify-between gap-2 p-6 pb-0 text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50 rounded-t-2xl"
+                  className="flex items-start justify-between gap-2 p-6 pb-0 text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-t-2xl"
                   onClick={() => navigate(`/edit/${p.id}`)}
                   aria-label={`Edit ${p.title}`}
                 >
@@ -132,14 +132,14 @@ export default function PresentationsPage() {
                       Updated {new Date(p.updated_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10">
-                    <Presentation className="h-4 w-4 text-violet-400" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl accent-surface">
+                    <Presentation className="h-4 w-4 accent-text" />
                   </div>
                 </button>
                 <div className="flex gap-2 px-6 pb-6">
                   <Button
                     size="sm"
-                    className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-sm shadow-violet-900/30 h-8 px-3 text-xs"
+                    className="accent-bg accent-bg-hover text-white border-0 shadow-sm h-8 px-3 text-xs"
                     onClick={() => startSession.mutate(p.id)}
                     disabled={startSession.isPending}
                   >
@@ -185,11 +185,11 @@ export default function PresentationsPage() {
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="New presentation title..."
-            className="max-w-sm bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+            className="max-w-sm bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
           />
           <Button
             type="submit"
-            className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40 shrink-0"
+            className="accent-bg accent-bg-hover text-white border-0 accent-shadow shrink-0"
             disabled={createMutation.isPending}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -202,7 +202,7 @@ export default function PresentationsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
-            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
           />
         </div>
       </motion.div>

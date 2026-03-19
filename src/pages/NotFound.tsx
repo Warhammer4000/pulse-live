@@ -21,13 +21,13 @@ const NotFound = () => {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative text-center"
       >
-        <p className="text-sm font-medium text-violet-400 tracking-widest uppercase mb-4">404</p>
+        <p className="text-sm font-medium accent-text tracking-widest uppercase mb-4">404</p>
         <h1 className="text-6xl font-bold text-white tracking-tight mb-3">Page not found</h1>
         <p className="text-white/40 text-lg mb-8">
           The page at <span className="font-mono text-white/60">{location.pathname}</span> doesn't exist.
         </p>
         <Button
-          className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+          className="accent-bg accent-bg-hover text-white border-0 accent-shadow"
           onClick={() => navigate("/")}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />

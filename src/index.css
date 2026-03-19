@@ -4,6 +4,95 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Theme definitions ──────────────────────────────────────────────────── */
+/* Each [data-theme] block overrides the accent/primary tokens only.          */
+/* The base dark surface tokens are shared across all themes.                 */
+
+/* Violet (default) — already set via .dark below */
+[data-theme="violet"] {
+  --primary: 255 70% 68%;
+  --primary-foreground: 230 25% 5%;
+  --primary-glow: 270 80% 72%;
+  --ring: 255 70% 68%;
+  --accent-color: 255 70% 68%;
+  --accent-glow: rgba(139, 92, 246, 0.25);
+  --accent-glow-btn: rgba(109, 40, 217, 0.4);
+  --sidebar-primary: 255 70% 68%;
+  --sidebar-ring: 255 70% 68%;
+  --gradient-primary: linear-gradient(135deg, hsl(255, 70%, 68%), hsl(270, 80%, 72%));
+  --gradient-hero: linear-gradient(160deg, hsl(255, 70%, 68%) 0%, hsl(270, 80%, 72%) 40%, hsl(300, 60%, 65%) 100%);
+  --shadow-glow: 0 8px 32px -8px hsl(255 70% 68% / 0.3);
+  --shadow-card-hover: 0 4px 24px -4px hsl(255 70% 68% / 0.2), 0 8px 32px -8px hsl(0 0% 0% / 0.2);
+}
+
+/* Midnight Blue */
+[data-theme="blue"] {
+  --primary: 217 91% 65%;
+  --primary-foreground: 230 25% 5%;
+  --primary-glow: 221 83% 70%;
+  --ring: 217 91% 65%;
+  --accent-color: 217 91% 65%;
+  --accent-glow: rgba(59, 130, 246, 0.25);
+  --accent-glow-btn: rgba(29, 78, 216, 0.4);
+  --sidebar-primary: 217 91% 65%;
+  --sidebar-ring: 217 91% 65%;
+  --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 65%), hsl(221, 83%, 70%));
+  --gradient-hero: linear-gradient(160deg, hsl(217, 91%, 65%) 0%, hsl(221, 83%, 70%) 40%, hsl(199, 89%, 60%) 100%);
+  --shadow-glow: 0 8px 32px -8px hsl(217 91% 65% / 0.3);
+  --shadow-card-hover: 0 4px 24px -4px hsl(217 91% 65% / 0.2), 0 8px 32px -8px hsl(0 0% 0% / 0.2);
+}
+
+/* Emerald */
+[data-theme="emerald"] {
+  --primary: 158 64% 52%;
+  --primary-foreground: 230 25% 5%;
+  --primary-glow: 160 84% 55%;
+  --ring: 158 64% 52%;
+  --accent-color: 158 64% 52%;
+  --accent-glow: rgba(16, 185, 129, 0.25);
+  --accent-glow-btn: rgba(5, 150, 105, 0.4);
+  --sidebar-primary: 158 64% 52%;
+  --sidebar-ring: 158 64% 52%;
+  --gradient-primary: linear-gradient(135deg, hsl(158, 64%, 52%), hsl(160, 84%, 55%));
+  --gradient-hero: linear-gradient(160deg, hsl(158, 64%, 52%) 0%, hsl(160, 84%, 55%) 40%, hsl(175, 70%, 50%) 100%);
+  --shadow-glow: 0 8px 32px -8px hsl(158 64% 52% / 0.3);
+  --shadow-card-hover: 0 4px 24px -4px hsl(158 64% 52% / 0.2), 0 8px 32px -8px hsl(0 0% 0% / 0.2);
+}
+
+/* Rose */
+[data-theme="rose"] {
+  --primary: 350 89% 68%;
+  --primary-foreground: 230 25% 5%;
+  --primary-glow: 355 80% 72%;
+  --ring: 350 89% 68%;
+  --accent-color: 350 89% 68%;
+  --accent-glow: rgba(244, 63, 94, 0.25);
+  --accent-glow-btn: rgba(190, 18, 60, 0.4);
+  --sidebar-primary: 350 89% 68%;
+  --sidebar-ring: 350 89% 68%;
+  --gradient-primary: linear-gradient(135deg, hsl(350, 89%, 68%), hsl(355, 80%, 72%));
+  --gradient-hero: linear-gradient(160deg, hsl(350, 89%, 68%) 0%, hsl(355, 80%, 72%) 40%, hsl(330, 80%, 65%) 100%);
+  --shadow-glow: 0 8px 32px -8px hsl(350 89% 68% / 0.3);
+  --shadow-card-hover: 0 4px 24px -4px hsl(350 89% 68% / 0.2), 0 8px 32px -8px hsl(0 0% 0% / 0.2);
+}
+
+/* Amber */
+[data-theme="amber"] {
+  --primary: 38 92% 60%;
+  --primary-foreground: 230 25% 5%;
+  --primary-glow: 43 96% 65%;
+  --ring: 38 92% 60%;
+  --accent-color: 38 92% 60%;
+  --accent-glow: rgba(245, 158, 11, 0.25);
+  --accent-glow-btn: rgba(180, 83, 9, 0.4);
+  --sidebar-primary: 38 92% 60%;
+  --sidebar-ring: 38 92% 60%;
+  --gradient-primary: linear-gradient(135deg, hsl(38, 92%, 60%), hsl(43, 96%, 65%));
+  --gradient-hero: linear-gradient(160deg, hsl(38, 92%, 60%) 0%, hsl(43, 96%, 65%) 40%, hsl(25, 95%, 60%) 100%);
+  --shadow-glow: 0 8px 32px -8px hsl(38 92% 60% / 0.3);
+  --shadow-card-hover: 0 4px 24px -4px hsl(38 92% 60% / 0.2), 0 8px 32px -8px hsl(0 0% 0% / 0.2);
+}
+
 @layer base {
   :root {
     --background: 225 20% 97%;
@@ -121,7 +210,43 @@
   }
 }
 
-@layer components {
+/* ─── Theme-aware accent utilities ──────────────────────────────────────── */
+/* These classes read from the active [data-theme] CSS variables so that      */
+/* components using them automatically adapt to the selected theme.           */
+@layer utilities {
+  .accent-bg {
+    background-color: hsl(var(--primary));
+  }
+  .accent-bg-hover:hover {
+    background-color: hsl(var(--primary-glow));
+  }
+  .accent-text {
+    color: hsl(var(--primary));
+  }
+  .accent-border {
+    border-color: hsl(var(--primary) / 0.3);
+  }
+  .accent-surface {
+    background-color: hsl(var(--primary) / 0.1);
+  }
+  .accent-ring {
+    --tw-ring-color: hsl(var(--primary) / 0.3);
+  }
+  .accent-shadow {
+    box-shadow: 0 10px 30px -8px hsl(var(--primary) / 0.4);
+  }
+  .accent-glow-bg {
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.25), transparent);
+  }
+  .accent-gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+
   .glass-card {
     @apply bg-card/70 backdrop-blur-xl border border-border/50;
     box-shadow: var(--shadow-card);
@@ -154,4 +279,3 @@
   .glow-button:hover {
     box-shadow: 0 12px 40px -8px hsl(var(--primary) / 0.4);
   }
-}

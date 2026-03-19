@@ -26,7 +26,7 @@ export function SortableSlideItem({ slide, index, isSelected, onSelect }: Props)
         className={cn(
           "group flex w-full items-center gap-2 rounded-xl p-2.5 text-left text-sm transition-all",
           isSelected
-            ? "bg-violet-500/10 text-violet-400 border border-violet-500/20"
+            ? "accent-surface accent-text border accent-border"
             : "text-white/50 hover:bg-white/5 hover:text-white border border-transparent"
         )}
       >

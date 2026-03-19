@@ -26,7 +26,7 @@ export function SlideList({ slides, responses, activeSlideId, onSelect }: Readon
             className={cn(
               "flex w-full items-center gap-3 rounded-xl p-3 text-left text-sm transition-all",
               activeSlideId === slide.id
-                ? "bg-violet-500/10 text-violet-400 border border-violet-500/20"
+                ? "accent-surface accent-text border accent-border"
                 : "text-white/50 hover:bg-white/5 hover:text-white border border-transparent"
             )}
           >

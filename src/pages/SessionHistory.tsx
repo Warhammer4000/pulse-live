@@ -100,7 +100,7 @@ export default function SessionHistory() {
         <p className="text-white/60 font-medium">No sessions yet</p>
         <p className="text-white/30 text-sm mt-1">Start a presentation to see analytics here</p>
         <Button
-          className="mt-6 bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+          className="mt-6 accent-bg accent-bg-hover text-white border-0 accent-shadow"
           onClick={() => navigate(`/edit/${presentationId}`)}
         >
           Go to Editor
@@ -119,7 +119,7 @@ export default function SessionHistory() {
                 className={cn(
                   "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-all",
                   selectedSession?.id === s.id
-                    ? "border-violet-500/30 bg-violet-500/10 text-violet-400"
+                    ? "border-primary/30 bg-primary/10 accent-text"
                     : "border-white/8 bg-white/5 text-white/50 hover:border-white/15 hover:text-white"
                 )}
               >
@@ -129,7 +129,7 @@ export default function SessionHistory() {
                 {s.is_active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
               </button>
               {s.is_active ? (
-                <Button size="sm" variant="ghost" className="h-8 px-2 text-violet-400 hover:bg-violet-500/10" onClick={() => navigate(`/present/${s.id}`)}>
+                <Button size="sm" variant="ghost" className="h-8 px-2 accent-text hover:accent-surface" onClick={() => navigate(`/present/${s.id}`)}>
                   <Play className="h-3 w-3 mr-1" /> Resume
                 </Button>
               ) : (
@@ -150,8 +150,8 @@ export default function SessionHistory() {
             ].map((stat) => (
               <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-5">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
-                    <stat.icon className="h-5 w-5 text-violet-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl accent-surface">
+                    <stat.icon className="h-5 w-5 accent-text" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold font-mono text-white">{stat.value}</p>

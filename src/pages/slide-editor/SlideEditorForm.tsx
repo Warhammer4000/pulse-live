@@ -81,14 +81,14 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
       <div className="space-y-1.5">
         <Label className="text-white/60 text-sm">Slide Type</Label>
         <Select value={slide.type} onValueChange={(v) => onTypeChange(v as SlideType)}>
-          <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-violet-500/30">
+          <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-primary/30">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-[#0f0f1a] border-white/10 text-white">
             {(["multiple_choice", "word_cloud", "open_text"] as SlideType[]).map((t) => {
               const Icon = TYPE_ICONS[t];
               return (
-                <SelectItem key={t} value={t} className="focus:bg-violet-500/10 focus:text-violet-400">
+                <SelectItem key={t} value={t} className="focus:accent-surface focus:accent-text">
                   <span className="flex items-center gap-2">
                     <Icon className="h-4 w-4" />
                     {TYPE_LABELS[t]}
@@ -107,7 +107,7 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
           value={localQuestion}
           onChange={(e) => setLocalQuestion(e.target.value)}
           placeholder="Type your question here..."
-          className="min-h-[100px] text-base bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50 resize-none"
+          className="min-h-[100px] text-base bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50 resize-none"
         />
       </div>
 
@@ -125,14 +125,14 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
                 exit={{ opacity: 0, height: 0 }}
                 className="flex items-center gap-2"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-xs font-mono font-semibold text-violet-400">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg accent-surface text-xs font-mono font-semibold accent-text">
                   {String.fromCodePoint(65 + i)}
                 </span>
                 <Input
                   value={opt}
                   onChange={(e) => updateOption(i, e.target.value)}
                   placeholder={`Option ${String.fromCodePoint(65 + i)}`}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
                 />
                 <Button
                   size="icon"
@@ -189,7 +189,7 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
             <div className="mt-5 space-y-2">
               {localOptions.map((opt, i) => (
                 <div key={opt + i} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3.5">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-600 text-xs font-mono font-bold text-white">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg accent-bg text-xs font-mono font-bold text-white">
                     {String.fromCodePoint(65 + i)}
                   </span>
                   <span className="text-sm font-medium text-white">{opt}</span>

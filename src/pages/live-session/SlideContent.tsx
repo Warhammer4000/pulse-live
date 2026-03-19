@@ -76,10 +76,10 @@ export function SlideContent({
               className={cn(
                 "flex w-full items-center gap-4 rounded-2xl border p-5 text-left transition-all",
                 selectedOption === opt
-                  ? "border-violet-500/50 bg-violet-500/10"
+                  ? "border-primary/50 accent-surface"
                   : "border-white/8 bg-white/5 hover:border-white/15 hover:bg-white/8"
               )}>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-sm font-mono font-bold text-white">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl accent-bg text-sm font-mono font-bold text-white">
                 {String.fromCodePoint(65 + i)}
               </span>
               <span className="text-lg font-medium text-white">{opt}</span>
@@ -91,9 +91,9 @@ export function SlideContent({
         <form onSubmit={handleTextSubmit} className="space-y-4">
           <Input value={textResponse} onChange={(e) => onTextChange(e.target.value)}
             placeholder="Type a word or short phrase..." maxLength={50}
-            className="h-14 text-lg text-center bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50" />
+            className="h-14 text-lg text-center bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50" />
           <Button type="submit" disabled={!textResponse.trim() || isPending}
-            className="w-full h-14 text-base bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40">
+            className="w-full h-14 text-base accent-bg accent-bg-hover text-white border-0 accent-shadow">
             Submit
           </Button>
         </form>
@@ -102,9 +102,9 @@ export function SlideContent({
         <form onSubmit={handleTextSubmit} className="space-y-4">
           <Textarea value={textResponse} onChange={(e) => onTextChange(e.target.value)}
             placeholder="Type your response..."
-            className="min-h-[120px] text-base bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50" />
+            className="min-h-[120px] text-base bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50" />
           <Button type="submit" disabled={!textResponse.trim() || isPending}
-            className="w-full h-14 text-base bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40">
+            className="w-full h-14 text-base accent-bg accent-bg-hover text-white border-0 accent-shadow">
             Submit
           </Button>
         </form>

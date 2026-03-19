@@ -96,7 +96,7 @@ export function SlideEditorSidebar({
           <Plus className="mr-2 h-3.5 w-3.5" /> Add Slide
         </Button>
         <Button
-          className="w-full bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40 h-9 text-sm"
+          className="w-full accent-bg accent-bg-hover text-white border-0 accent-shadow h-9 text-sm"
           onClick={onPresent}
           disabled={isStartingSession || slides.length === 0}
         >

@@ -58,7 +58,7 @@ export function PresenterTopBar({
         <div className={cn(
           "flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-sm transition-colors",
           stopwatch.running
-            ? "border-violet-500/30 bg-violet-500/10 text-violet-400"
+            ? "border-primary/30 bg-primary/10 accent-text"
             : "border-white/8 bg-white/5 text-white/40",
         )}>
           <Timer className="h-3.5 w-3.5" />

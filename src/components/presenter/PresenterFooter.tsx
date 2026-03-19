@@ -35,7 +35,7 @@ export function PresenterFooter({
                 className={cn(
                   "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
                   slide.id === activeSlide.id
-                    ? "bg-violet-600 text-white shadow-sm shadow-violet-900/40"
+                    ? "accent-bg text-white shadow-sm"
                     : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white",
                 )}
               >
@@ -72,7 +72,7 @@ export function PresenterFooter({
 
         {/* Nav + response count */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 px-3 py-1 text-sm font-medium text-violet-400">
+          <div className="flex items-center gap-1.5 rounded-full accent-surface accent-border border px-3 py-1 text-sm font-medium accent-text">
             <span className="font-mono">{responseCount}</span>
             <span>{responseCount === 1 ? "response" : "responses"}</span>
           </div>

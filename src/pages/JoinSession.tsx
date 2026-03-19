@@ -68,7 +68,7 @@ export default function JoinSession() {
       >
         <div className="mb-8">
           <span className="text-2xl font-bold text-white tracking-tight">
-            Pulse<span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Live</span>
+            Pulse<span className="accent-gradient-text">Live</span>
           </span>
           <p className="mt-3 text-white/40 text-sm">Enter the 6-digit session code to join</p>
         </div>
@@ -96,7 +96,7 @@ export default function JoinSession() {
           </div>
 
           <Button
-            className="w-full h-12 bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+            className="w-full h-12 accent-bg accent-bg-hover text-white border-0 accent-shadow"
             onClick={() => handleJoin(code)}
             disabled={code.length !== 6 || loading}
           >

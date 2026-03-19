@@ -52,8 +52,8 @@ export default function ResetPassword() {
         className="relative w-full max-w-md"
       >
         <div className="mb-8 text-center">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/15 border border-violet-500/20 mb-4">
-            <Lock className="h-6 w-6 text-violet-400" />
+          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl accent-surface accent-border border mb-4">
+            <Lock className="h-6 w-6 accent-text" />
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Set new password</h1>
           <p className="mt-2 text-sm text-white/40">Choose a strong password for your account</p>
@@ -71,7 +71,7 @@ export default function ResetPassword() {
                 placeholder="••••••••"
                 required
                 minLength={6}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
               />
             </div>
             <div className="space-y-1.5">
@@ -84,12 +84,12 @@ export default function ResetPassword() {
                 placeholder="••••••••"
                 required
                 minLength={6}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-violet-500/30 focus-visible:border-violet-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/30 focus-visible:border-primary/50"
               />
             </div>
             <Button
               type="submit"
-              className="w-full bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+              className="w-full accent-bg accent-bg-hover text-white border-0 accent-shadow"
               disabled={loading}
             >
               {loading ? "Updating..." : "Update Password"}

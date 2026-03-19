@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,6 +60,40 @@ export default function DashboardOverview() {
   const recentPresentations = presentations.slice(0, 4);
   const recentSessions = sessions.slice(0, 5);
 
+  let recentPresentationsContent: React.ReactNode;
+  if (presLoading) {
+    recentPresentationsContent = (
+      <div className="space-y-2">
+        {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
+      </div>
+    );
+  } else if (recentPresentations.length === 0) {
+    recentPresentationsContent = (
+      <div className="rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center py-12 text-center">
+        <Presentation className="mb-3 h-8 w-8 text-white/20" />
+        <p className="text-white/40 text-sm">No presentations yet</p>
+      </div>
+    );
+  } else {
+    recentPresentationsContent = (
+      <div className="space-y-2">
+        {recentPresentations.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => navigate(`/edit/${p.id}`)}
+            className="w-full flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-4 py-3 hover:border-white/15 hover:bg-white/8 transition-all duration-200 text-left"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white truncate">{p.title}</p>
+              <p className="text-xs text-white/30">Updated {new Date(p.updated_at).toLocaleDateString()}</p>
+            </div>
+            <ArrowRight className="h-4 w-4 shrink-0 text-white/20" />
+          </button>
+        ))}
+      </div>
+    );
+  }
+
   const stats = [
     { label: "Presentations", value: presentations.length, icon: Presentation },
     { label: "Sessions", value: sessions.length, icon: TrendingUp },
@@ -72,14 +107,14 @@ export default function DashboardOverview() {
         {/* Header + quick actions */}
         <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
           <div>
-            <p className="text-xs font-medium text-violet-400 tracking-widest uppercase mb-2">Dashboard</p>
+            <p className="text-xs font-medium accent-text tracking-widest uppercase mb-2">Dashboard</p>
             <h1 className="text-3xl font-bold tracking-tight text-white">
-              Welcome back, <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">{displayName}</span>
+              Welcome back, <span className="accent-gradient-text">{displayName}</span>
             </h1>
             <p className="mt-1.5 text-sm text-white/40">Here's an overview of your PulseLive activity</p>
           </div>
           <div className="flex flex-wrap gap-3 shrink-0">
-            <Button className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40 rounded-xl" onClick={() => navigate("/dashboard/presentations")}>
+            <Button className="accent-bg accent-bg-hover text-white border-0 accent-shadow rounded-xl" onClick={() => navigate("/dashboard/presentations")}>
               <Plus className="mr-2 h-4 w-4" />
               New Presentation
             </Button>
@@ -95,8 +130,8 @@ export default function DashboardOverview() {
           {stats.map((stat) => (
             <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-5 hover:border-white/15 hover:bg-white/8 transition-all duration-200">
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
-                  <stat.icon className="h-5 w-5 text-violet-400" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl accent-surface">
+                  <stat.icon className="h-5 w-5 accent-text" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold font-mono text-white">{presLoading ? "–" : stat.value}</p>
@@ -112,43 +147,18 @@ export default function DashboardOverview() {
           <motion.div variants={fadeUp}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-white/60 tracking-widest uppercase">Recent Presentations</h2>
-              <button onClick={() => navigate("/dashboard/presentations")} className="flex items-center gap-1 text-xs text-white/40 hover:text-violet-400 transition-colors">
+              <button onClick={() => navigate("/dashboard/presentations")} className="flex items-center gap-1 text-xs text-white/40 hover:accent-text transition-colors">
                 View all <ArrowRight className="h-3 w-3" />
               </button>
             </div>
-            {presLoading ? (
-              <div className="space-y-2">
-                {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
-              </div>
-            ) : recentPresentations.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center py-12 text-center">
-                <Presentation className="mb-3 h-8 w-8 text-white/20" />
-                <p className="text-white/40 text-sm">No presentations yet</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {recentPresentations.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => navigate(`/edit/${p.id}`)}
-                    className="w-full flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-4 py-3 hover:border-white/15 hover:bg-white/8 transition-all duration-200 text-left"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{p.title}</p>
-                      <p className="text-xs text-white/30">Updated {new Date(p.updated_at).toLocaleDateString()}</p>
-                    </div>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-white/20" />
-                  </button>
-                ))}
-              </div>
-            )}
+            {recentPresentationsContent}
           </motion.div>
 
           {/* Recent Sessions */}
           <motion.div variants={fadeUp}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-white/60 tracking-widest uppercase">Recent Sessions</h2>
-              <button onClick={() => navigate("/dashboard/analytics")} className="flex items-center gap-1 text-xs text-white/40 hover:text-violet-400 transition-colors">
+              <button onClick={() => navigate("/dashboard/analytics")} className="flex items-center gap-1 text-xs text-white/40 hover:accent-text transition-colors">
                 View all <ArrowRight className="h-3 w-3" />
               </button>
             </div>
@@ -168,7 +178,7 @@ export default function DashboardOverview() {
                       className="w-full flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-4 py-3 hover:border-white/15 hover:bg-white/8 transition-all duration-200 text-left"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="font-mono text-sm font-semibold text-violet-400 shrink-0">{s.join_code}</span>
+                        <span className="font-mono text-sm font-semibold accent-text shrink-0">{s.join_code}</span>
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-white truncate">{pres?.title ?? "Unknown"}</p>
                           <p className="text-xs text-white/30">
@@ -178,8 +188,8 @@ export default function DashboardOverview() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {s.is_active && (
-                          <span className="flex items-center gap-1 text-xs text-emerald-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{" "}
                             Live
                           </span>
                         )}
