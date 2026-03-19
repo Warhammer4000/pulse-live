@@ -6,6 +6,7 @@ export type SlideType = Enums<"slide_type">;
 
 /** Unified option object used in MC, Quiz, and Ranking */
 export interface OptionItem {
+  id: string;
   text: string;
   image_url?: string;
   is_correct?: boolean;
@@ -47,9 +48,12 @@ export function parseOptionItems(raw: unknown): OptionItem[] {
     return [];
   }
   return arr.map((item) => {
-    if (typeof item === "string") return { text: item };
-    if (typeof item === "object" && item !== null && "text" in item) return item as OptionItem;
-    return { text: String(item) };
+    if (typeof item === "string") return { id: crypto.randomUUID(), text: item };
+    if (typeof item === "object" && item !== null && "text" in item) {
+      const o = item as Record<string, unknown>;
+      return { id: typeof o.id === "string" ? o.id : crypto.randomUUID(), text: String(o.text), image_url: o.image_url as string | undefined, is_correct: o.is_correct as boolean | undefined };
+    }
+    return { id: crypto.randomUUID(), text: String(item) };
   });
 }
 

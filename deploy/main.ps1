@@ -24,8 +24,9 @@ function Show-Summary([string]$url, [string]$anonKey) {
     Write-Host ""
     Write-Host "  Supabase URL  $url" -ForegroundColor DarkGray
     Write-Host "  Anon key      $($anonKey.Substring(0,24))..." -ForegroundColor DarkGray
-    if ($script:NetlifySiteUrl -ne "") {
-        Write-Host "  Site URL      $($script:NetlifySiteUrl)" -ForegroundColor DarkGray
+    $siteUrl = if ($null -ne $script:NetlifySiteUrl -and $script:NetlifySiteUrl -ne "") { $script:NetlifySiteUrl } else { $null }
+    if ($siteUrl) {
+        Write-Host "  Site URL      $siteUrl" -ForegroundColor Cyan
     }
     Write-Host ""
     Write-Host "  Next steps:" -ForegroundColor White
@@ -55,12 +56,12 @@ Step-Supabase
 Step-WriteEnv -url $script:SupabaseCreds.Url -anonKey $script:SupabaseCreds.AnonKey
 Step-Netlify -supabaseUrl $script:SupabaseCreds.Url -anonKey $script:SupabaseCreds.AnonKey
 
-# Update Supabase auth redirect URLs now that we know the live site URL
-# Prompt user to configure Supabase auth URLs
-if ($script:NetlifySiteUrl -ne "") {
-    Update-SupabaseAuthUrls -projectRef $script:SupabaseProjectRef -siteUrl $script:NetlifySiteUrl
+# Prompt user to configure Supabase auth URLs with the real production URL
+$resolvedSiteUrl = if ($null -ne $script:NetlifySiteUrl -and $script:NetlifySiteUrl -ne "") {
+    $script:NetlifySiteUrl
 } else {
-    Update-SupabaseAuthUrls -projectRef $script:SupabaseProjectRef -siteUrl "<your-netlify-site-url>"
+    "<your-netlify-site-url>"
 }
+Update-SupabaseAuthUrls -projectRef $script:SupabaseProjectRef -siteUrl $resolvedSiteUrl
 
 Show-Summary -url $script:SupabaseCreds.Url -anonKey $script:SupabaseCreds.AnonKey

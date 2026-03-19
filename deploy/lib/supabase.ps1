@@ -144,26 +144,17 @@ function New-SupabaseProject {
 
 function Invoke-MigrationCheck([string]$exe, [string]$projectRef) {
     Write-Host ""
-    $migrationsPath = Join-Path $PSScriptRoot "../supabase/migrations"
-    $migrationFiles = @()
-    if (Test-Path $migrationsPath) {
-        $migrationFiles = Get-ChildItem -Path $migrationsPath -Filter "*.sql" -ErrorAction SilentlyContinue
-    }
-
-    if ($migrationFiles.Count -eq 0) {
+    $migrationsPath = Join-Path $PSScriptRoot "../../supabase/migrations"
+    if (-not (Test-Path $migrationsPath) -or (Get-ChildItem -Path $migrationsPath -Filter "*.sql" -ErrorAction SilentlyContinue).Count -eq 0) {
         Write-Info "No migration files found — skipping db push."
         return
     }
 
-    Write-Step "Checking migration status..."
-    $migListText = (Invoke-Supabase migration list --project-ref $projectRef 2>&1) -join "`n"
-    $pendingCount = ([regex]::Matches($migListText, '│\s+│')).Count
-
-    if ($pendingCount -eq 0) {
-        Write-Success "All migrations already applied — skipping db push."
-    } elseif (Ask-YesNo "$pendingCount pending migration(s) found. Apply them now?") {
-        Write-Step "Pushing migrations..."
-        Start-Process -FilePath $exe -ArgumentList "db", "push" -NoNewWindow -PassThru -Wait | Out-Null
-        Write-Success "Migrations applied"
+    Write-Step "Pushing migrations..."
+    $result = Start-Process -FilePath $exe -ArgumentList "db", "push", "--yes" -NoNewWindow -PassThru -Wait
+    if ($result.ExitCode -ne 0) {
+        Write-Err "Migration push failed. Please run 'supabase db push --project-ref $projectRef' manually."
+        exit 1
     }
+    Write-Success "Migrations applied"
 }

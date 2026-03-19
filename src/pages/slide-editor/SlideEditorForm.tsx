@@ -1,26 +1,21 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, Copy, Cloud, MessageSquare, Star, ListOrdered, ThumbsUp, ImageIcon } from "lucide-react";
+import { Plus, Trash2, Cloud, MessageSquare, Star, ThumbsUp, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { TYPE_ICONS, TYPE_LABELS, parseOptionItems, parseRatingConfig } from "./types";
 import type { SlideRow, SlideType, OptionItem } from "./types";
 
 interface Props {
   readonly slide: SlideRow;
-  readonly canDelete: boolean;
-  readonly isDuplicating: boolean;
   readonly onTypeChange: (type: SlideType) => void;
-  readonly onDuplicate: () => void;
-  readonly onDelete: () => void;
   readonly onSave: (question: string, options: unknown, imageUrl: string) => void;
 }
 
-export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange, onDuplicate, onDelete, onSave }: Props) {
+export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
   const [localQuestion, setLocalQuestion] = useState(slide.question);
   const [localOptions, setLocalOptions] = useState<OptionItem[]>(() => parseOptionItems(slide.options));
   const [ratingConfig, setRatingConfig] = useState(() => parseRatingConfig(slide.options));
@@ -57,7 +52,7 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
   }, [localQuestion, localOptions, ratingConfig, pollStyle, imageUrl]);
 
   const addOption = () =>
-    setLocalOptions((prev) => [...prev, { text: `Option ${String.fromCodePoint(65 + prev.length)}` }]);
+    setLocalOptions((prev) => [...prev, { id: crypto.randomUUID(), text: `Option ${String.fromCodePoint(65 + prev.length)}` }]);
   const removeOption = (i: number) =>
     setLocalOptions((prev) => prev.filter((_, idx) => idx !== i));
   const updateOptionText = (i: number, val: string) =>
@@ -77,19 +72,6 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
       transition={{ duration: 0.2 }}
       className="mx-auto max-w-2xl p-8 space-y-6"
     >
-      {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-white">Edit Slide</h2>
-        <div className="flex gap-2">
-          <Button size="sm" className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/8 h-8 px-3 text-xs" onClick={onDuplicate} disabled={isDuplicating}>
-            <Copy className="mr-1 h-3 w-3" /> Duplicate
-          </Button>
-          <Button size="sm" className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 h-8 px-3 text-xs" onClick={onDelete} disabled={!canDelete}>
-            <Trash2 className="mr-1 h-3 w-3" /> Delete
-          </Button>
-        </div>
-      </div>
-
       {/* Type */}
       <div className="space-y-1.5">
         <Label className="text-white/60 text-sm">Slide Type</Label>
@@ -149,7 +131,7 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
           <AnimatePresence mode="popLayout">
             {localOptions.map((opt, i) => (
               <motion.div
-                key={`opt-${i}`}
+                key={opt.id}
                 layout
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -292,7 +274,7 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
           {(slide.type === "multiple_choice" || slide.type === "quiz") && (
             <div className="mt-5 space-y-2">
               {localOptions.map((opt, i) => (
-                <div key={`preview-${i}`} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3.5">
+                <div key={opt.id} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3.5">
                   <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-mono font-bold text-white ${
                     slide.type === "quiz" && opt.is_correct ? "bg-emerald-500" : "accent-bg"
                   }`}>
@@ -311,7 +293,7 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
           {slide.type === "ranking" && (
             <div className="mt-5 space-y-2">
               {localOptions.map((opt, i) => (
-                <div key={`rank-${i}`} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3.5">
+                <div key={opt.id} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3.5">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg accent-bg text-xs font-mono font-bold text-white">{i + 1}</span>
                   <span className="text-sm font-medium text-white">{opt.text}</span>
                 </div>

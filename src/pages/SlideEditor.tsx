@@ -58,12 +58,25 @@ export default function SlideEditor() {
         selectedSlideId={selectedSlideId}
         isAddingSlide={addSlideMutation.isPending}
         isStartingSession={startSessionMutation.isPending}
+        isDuplicating={duplicateSlideMutation.isPending}
         onBack={() => navigate("/dashboard/presentations")}
         onTitleChange={(title) => updateTitleMutation.mutate(title)}
         onSelectSlide={setSelectedSlideId}
         onAddSlide={handleAddSlide}
         onPresent={() => startSessionMutation.mutate()}
         onDragEnd={handleDragEnd}
+        onDuplicate={(slideId) => {
+          const slide = slides.find((s) => s.id === slideId);
+          if (slide) duplicateSlideMutation.mutateAsync(slide).then((data) => { if (data) setSelectedSlideId(data.id); });
+        }}
+        onDelete={(slideId) => {
+          deleteSlideMutation.mutate(slideId, {
+            onSuccess: () => {
+              const remaining = slides.find((s) => s.id !== slideId);
+              setSelectedSlideId(remaining?.id ?? null);
+            },
+          });
+        }}
       />
 
       <div className="flex-1 overflow-y-auto">

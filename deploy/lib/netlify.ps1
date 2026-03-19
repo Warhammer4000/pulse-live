@@ -1,12 +1,24 @@
-function Invoke-NetlifyInteractive([string[]]$argList) {
+function Invoke-NetlifyCli {
+    param([string[]]$argList, [switch]$CaptureOutput)
     if ($IsWindows) {
-        # netlify on Windows is a .cmd wrapper — must go through cmd.exe
         $cmdArgs = @("/c", "netlify") + $argList
-        Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -NoNewWindow -PassThru -Wait | Out-Null
+        if ($CaptureOutput) {
+            return (cmd /c netlify @argList 2>&1)
+        } else {
+            Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -NoNewWindow -PassThru -Wait | Out-Null
+        }
     } else {
         $netlifyBin = (Get-Command netlify -ErrorAction SilentlyContinue)?.Source
-        Start-Process -FilePath $netlifyBin -ArgumentList $argList -NoNewWindow -PassThru -Wait | Out-Null
+        if ($CaptureOutput) {
+            return (& $netlifyBin @argList 2>&1)
+        } else {
+            Start-Process -FilePath $netlifyBin -ArgumentList $argList -NoNewWindow -PassThru -Wait | Out-Null
+        }
     }
+}
+
+function Get-NetlifyStatus {
+    return (Invoke-NetlifyCli @("status") -CaptureOutput) -join "`n"
 }
 
 function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
@@ -15,26 +27,23 @@ function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
     Write-Host ""
 
     # Login check
-    $whoami = netlify status 2>&1
-    if ($whoami -match "Not logged in|not authenticated") {
+    $statusText = Get-NetlifyStatus
+    if ($statusText -match "Not logged in|not authenticated") {
         Write-Warn "Not logged in to Netlify."
         Write-Step "Opening Netlify login..."
-        Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "netlify", "login" -NoNewWindow -PassThru -Wait | Out-Null
+        Invoke-NetlifyCli @("login")
+        $statusText = Get-NetlifyStatus
     } else {
-        $userLine = ($whoami | Select-String "Email").Line
+        $userLine = ($statusText -split "`n" | Select-String "Email").Line
         Write-Success "Logged in to Netlify  $userLine"
     }
 
-    # Site link check — verify state.json has a site ID that actually exists on Netlify
-    $stateFile = Join-Path $PSScriptRoot "../.netlify/state.json"
-    $siteStatusText = (netlify status 2>&1) -join "`n"
-
-    # A site is truly linked only if netlify status shows a real project name (not "undefined")
-    $isLinked = $siteStatusText -match "Current (?:site|project):\s*(?!undefined)\S+"
+    # Site link check — a site is truly linked only if netlify status shows a real project name (not "undefined")
+    $isLinked = $statusText -match "Current (?:site|project):\s*(?!undefined)\S+"
 
     if (-not $isLinked) {
         # Clear any stale state.json before presenting options
-        $stateFile = Join-Path $PSScriptRoot "../.netlify/state.json"
+        $stateFile = Join-Path $PSScriptRoot "../../.netlify/state.json"
         if (Test-Path $stateFile) {
             Remove-Item $stateFile -Force
             Write-Info "Cleared stale site link."
@@ -54,19 +63,23 @@ function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
 
     # Display linked site name
     Start-Sleep -Milliseconds 500
-    $siteStatusText = (netlify status 2>&1) -join "`n"
-    $siteLine = if ($siteStatusText -match "Current (?:site|project):\s*(.+)") { $Matches[1].Trim() } else { "" }
+    $statusText = Get-NetlifyStatus
+    $siteLine = if ($statusText -match "Current (?:site|project):\s*(.+)") { $Matches[1].Trim() } else { "" }
     if ($siteLine -and $siteLine -ne "undefined") {
         Write-Success "Site linked: $siteLine"
     } else {
         Write-Success "Site linked"
     }
 
-    # Set env vars
+    # Set env vars via netlify env:set (must go through cmd /c on Windows)
     Write-Step "Setting Supabase environment variables on Netlify..."
-    netlify env:set VITE_SUPABASE_URL $supabaseUrl --force 2>&1 | Out-Null
-    netlify env:set VITE_SUPABASE_PUBLISHABLE_KEY $anonKey --force 2>&1 | Out-Null
-    if ($LASTEXITCODE -eq 0) {
+    $envOk = $true
+    $r1 = Invoke-NetlifyCli @("env:set", "VITE_SUPABASE_URL", $supabaseUrl, "--force") -CaptureOutput
+    if ($r1 -match "Error|error") { $envOk = $false }
+    $r2 = Invoke-NetlifyCli @("env:set", "VITE_SUPABASE_PUBLISHABLE_KEY", $anonKey, "--force") -CaptureOutput
+    if ($r2 -match "Error|error") { $envOk = $false }
+
+    if ($envOk) {
         Write-Success "Environment variables set"
     } else {
         Write-Warn "Could not set env vars automatically — set them manually in the Netlify dashboard."
@@ -82,20 +95,36 @@ function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
     Write-Info "netlify will handle the build, site setup, and upload."
     Write-Host ""
 
-    if ($isProd) {
-        Invoke-NetlifyInteractive @("deploy", "--build", "--prod")
-    } else {
-        Invoke-NetlifyInteractive @("deploy", "--build")
+    # Capture deploy output so we can extract the production URL
+    $deployArgs = if ($isProd) { @("deploy", "--build", "--prod") } else { @("deploy", "--build") }
+    $deployOutput = Invoke-NetlifyCli $deployArgs -CaptureOutput
+    # Print it so the user sees progress
+    $deployOutput | ForEach-Object { Write-Host $_ }
+
+    # Extract production URL from deploy output
+    $script:NetlifySiteUrl = ""
+    foreach ($line in $deployOutput) {
+        if ($line -match "Deployed to production URL:\s*(https://\S+)") {
+            $script:NetlifySiteUrl = $Matches[1].Trim().TrimEnd('│').Trim()
+            break
+        }
+        if ($line -match "Website URL:\s*(https://\S+)") {
+            $script:NetlifySiteUrl = $Matches[1].Trim()
+            break
+        }
+        if ($line -match "URL:\s*(https://[a-z0-9\-]+\.netlify\.app)") {
+            if (-not $script:NetlifySiteUrl) {
+                $script:NetlifySiteUrl = $Matches[1].Trim()
+            }
+        }
     }
 
-    # Capture the live site URL from netlify status after deploy
-    $postStatus = (netlify status 2>&1) -join "`n"
-    if ($postStatus -match "Project URL:\s*(https://\S+)") {
-        $script:NetlifySiteUrl = $Matches[1].Trim()
-    } elseif ($postStatus -match "Site url:\s*(https://\S+)") {
-        $script:NetlifySiteUrl = $Matches[1].Trim()
-    } else {
-        $script:NetlifySiteUrl = ""
+    # Fallback: read from netlify status
+    if (-not $script:NetlifySiteUrl) {
+        $postStatus = Get-NetlifyStatus
+        if ($postStatus -match "(?:Project URL|Site url|URL):\s*(https://[a-z0-9\-]+\.netlify\.app)") {
+            $script:NetlifySiteUrl = $Matches[1].Trim()
+        }
     }
 
     Write-Success "Deploy complete"
@@ -103,9 +132,9 @@ function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
 
 function Invoke-NetlifyLink {
     Write-Step "Linking to existing site..."
-    Invoke-NetlifyInteractive @("link")
+    Invoke-NetlifyCli @("link")
 
-    $siteStatusText = (netlify status 2>&1) -join "`n"
+    $siteStatusText = Get-NetlifyStatus
     if ($siteStatusText -notmatch "Current (?:site|project):\s*(?!undefined)\S+") {
         Write-Err "Site linking failed or was cancelled."
         exit 1
@@ -115,27 +144,23 @@ function Invoke-NetlifyLink {
 function Invoke-NetlifyCreate {
     Write-Step "Creating a new site and linking..."
 
-    # Fetch teams to pass --account-slug, bypassing the broken interactive
-    # team picker in netlify CLI (crashes in non-native TTY on Windows)
-    $accountSlug = Get-NetlifyAccountSlug    Write-Host "  Site name [$script:DefaultProjectName]: " -ForegroundColor White -NoNewline
-    $input = Read-Host
-    $siteName = if ($input.Trim() -ne "") { $input.Trim() } else { $script:DefaultProjectName }
+    $accountSlug = Get-NetlifyAccountSlug
+
+    Write-Host "  Site name [$script:DefaultProjectName]: " -ForegroundColor White -NoNewline
+    $nameInput = Read-Host
+    $siteName = if ($nameInput.Trim() -ne "") { $nameInput.Trim() } else { $script:DefaultProjectName }
 
     $createArgs = @("sites:create")
     if ($accountSlug) { $createArgs += @("--account-slug", $accountSlug) }
     if ($siteName)    { $createArgs += @("--name", $siteName) }
 
-    Invoke-NetlifyInteractive $createArgs
+    Invoke-NetlifyCli $createArgs
     # sites:create auto-links — no further action needed
 }
 
 function Get-NetlifyAccountSlug {
     try {
-        $raw = if ($IsWindows) {
-            (cmd /c netlify api listAccountsForUser 2>&1) -join "`n"
-        } else {
-            (netlify api listAccountsForUser 2>&1) -join "`n"
-        }
+        $raw = (Invoke-NetlifyCli @("api", "listAccountsForUser") -CaptureOutput) -join "`n"
         $teams = $raw | ConvertFrom-Json
         if ($teams.Count -eq 1) {
             Write-Success "Team: $($teams[0].name)"
