@@ -1,11 +1,20 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Music, VolumeX } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatTime } from "@/hooks/presenter/useStopwatch";
+import type { MusicSheet } from "@/music/notes";
 import type { Tables } from "@/integrations/supabase/types";
 
 type SlideRow = Tables<"slides">;
 type SessionRow = Tables<"sessions">;
+
+interface StopwatchState {
+  elapsed: number;
+  running: boolean;
+  toggle: () => void;
+  reset: () => void;
+}
 
 interface Props {
   session: SessionRow;
@@ -13,12 +22,21 @@ interface Props {
   activeSlide: SlideRow;
   activeIndex: number;
   responseCount: number;
+  stopwatch: StopwatchState;
+  musicPlaying: boolean;
+  activeSheet: MusicSheet;
+  allSheets: MusicSheet[];
   onNavigate: (direction: "prev" | "next") => void;
   onJumpToSlide: (slideId: string) => void;
+  onOpenQR: () => void;
+  onToggleMusic: () => void;
+  onSelectSheet: (sheet: MusicSheet) => void;
 }
 
 export function PresenterFooter({
-  session, slides, activeSlide, activeIndex, responseCount, onNavigate, onJumpToSlide,
+  session, slides, activeSlide, activeIndex, responseCount,
+  stopwatch, musicPlaying, activeSheet, allSheets,
+  onNavigate, onJumpToSlide, onOpenQR, onToggleMusic, onSelectSheet,
 }: Readonly<Props>) {
   const origin = globalThis.location?.origin ?? "";
 
@@ -49,10 +67,14 @@ export function PresenterFooter({
         </div>
       )}
 
-      <div className="flex items-center justify-between px-6 py-4">
-        {/* QR + join info */}
+      <div className="grid grid-cols-3 items-center px-6 py-4">
+        {/* Left: QR + join info */}
         <div className="flex items-center gap-5">
-          <div className="rounded-xl overflow-hidden bg-white p-1.5">
+          <button
+            onClick={onOpenQR}
+            className="rounded-xl overflow-hidden bg-white p-1.5 hover:ring-2 hover:ring-violet-500/50 transition-all cursor-zoom-in"
+            title="Click to enlarge"
+          >
             <QRCodeSVG
               value={`${origin}/join/${session.join_code}`}
               size={72}
@@ -60,7 +82,7 @@ export function PresenterFooter({
               fgColor="#080810"
               level="M"
             />
-          </div>
+          </button>
           <div>
             <p className="text-xs text-white/40 mb-0.5">Join at</p>
             <p className="text-sm text-white/60">{origin}/join</p>
@@ -70,8 +92,63 @@ export function PresenterFooter({
           </div>
         </div>
 
-        {/* Nav + response count */}
-        <div className="flex items-center gap-3">
+        {/* Center: Timer + Music */}
+        <div className="flex flex-col items-center gap-2">
+          <span className={cn(
+            "font-mono font-bold tabular-nums tracking-tight transition-colors text-5xl",
+            stopwatch.running ? "text-violet-400" : "text-white/50",
+          )}>
+            {formatTime(stopwatch.elapsed)}
+          </span>
+
+          {/* Timer controls */}
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/8"
+              onClick={stopwatch.toggle} title={stopwatch.running ? "Pause" : "Start"}>
+              {stopwatch.running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/8"
+              onClick={stopwatch.reset} disabled={stopwatch.elapsed === 0} title="Reset">
+              <RotateCcw className="h-3.5 w-3.5" />
+            </Button>
+
+            <div className="h-4 w-px bg-white/10 mx-0.5" />
+
+            {/* Music toggle */}
+            <Button
+              variant="ghost" size="icon"
+              title={musicPlaying ? "Stop music" : "Play music"}
+              className={cn(
+                "h-8 w-8 transition-colors hover:bg-white/8",
+                musicPlaying ? "text-violet-400 hover:text-violet-300" : "text-white/40 hover:text-white",
+              )}
+              onClick={onToggleMusic}
+            >
+              {musicPlaying ? <VolumeX className="h-4 w-4" /> : <Music className="h-4 w-4" />}
+            </Button>
+          </div>
+
+          {/* Sheet picker — only visible when music is playing or hovered */}
+          <div className="flex items-center gap-1">
+            {allSheets.map((sheet) => (
+              <button
+                key={sheet.name}
+                onClick={() => onSelectSheet(sheet)}
+                className={cn(
+                  "rounded-full px-2.5 py-0.5 text-xs font-medium transition-all",
+                  sheet.name === activeSheet.name
+                    ? "bg-violet-500/20 border border-violet-500/30 text-violet-400"
+                    : "bg-white/5 border border-white/8 text-white/30 hover:text-white/60 hover:bg-white/8",
+                )}
+              >
+                {sheet.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Nav + response count */}
+        <div className="flex items-center justify-end gap-3">
           <div className="flex items-center gap-1.5 rounded-full accent-surface accent-border border px-3 py-1 text-sm font-medium accent-text">
             <span className="font-mono">{responseCount}</span>
             <span>{responseCount === 1 ? "response" : "responses"}</span>
@@ -80,20 +157,12 @@ export function PresenterFooter({
             <span className="text-sm font-mono text-white/30">
               {activeIndex + 1} / {slides.length}
             </span>
-            <Button
-              size="icon"
-              className="h-9 w-9 bg-white/5 hover:bg-white/10 text-white border border-white/8"
-              onClick={() => onNavigate("prev")}
-              disabled={activeIndex === 0}
-            >
+            <Button size="icon" className="h-9 w-9 bg-white/5 hover:bg-white/10 text-white border border-white/8"
+              onClick={() => onNavigate("prev")} disabled={activeIndex === 0}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button
-              size="icon"
-              className="h-9 w-9 bg-white/5 hover:bg-white/10 text-white border border-white/8"
-              onClick={() => onNavigate("next")}
-              disabled={activeIndex === slides.length - 1}
-            >
+            <Button size="icon" className="h-9 w-9 bg-white/5 hover:bg-white/10 text-white border border-white/8"
+              onClick={() => onNavigate("next")} disabled={activeIndex === slides.length - 1}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

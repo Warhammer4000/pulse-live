@@ -5,23 +5,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Lock, Unlock, RotateCcw, Eye, EyeOff, ArrowLeft,
-  Maximize, Minimize, Users, Timer, Square, Play, Pause, StopCircle,
+  Maximize, Minimize, Users, StopCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { formatTime } from "@/hooks/presenter/useStopwatch";
 import type { Tables } from "@/integrations/supabase/types";
-
-interface StopwatchState {
-  elapsed: number;
-  running: boolean;
-  toggle: () => void;
-  reset: () => void;
-}
 
 interface Props {
   session: Tables<"sessions">;
   participantCount: number;
-  stopwatch: StopwatchState;
   showResults: boolean;
   isFullscreen: boolean;
   onExit: () => void;
@@ -33,7 +23,7 @@ interface Props {
 }
 
 export function PresenterTopBar({
-  session, participantCount, stopwatch, showResults, isFullscreen,
+  session, participantCount, showResults, isFullscreen,
   onExit, onToggleVotingLock, onToggleResults, onResetResults, onEndSession, onToggleFullscreen,
 }: Readonly<Props>) {
   return (
@@ -51,26 +41,6 @@ export function PresenterTopBar({
             {participantCount === 1 ? "participant" : "participants"}
           </span>
         </div>
-      </div>
-
-      {/* Center: stopwatch */}
-      <div className="flex items-center gap-1">
-        <div className={cn(
-          "flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-sm transition-colors",
-          stopwatch.running
-            ? "border-primary/30 bg-primary/10 accent-text"
-            : "border-white/8 bg-white/5 text-white/40",
-        )}>
-          <Timer className="h-3.5 w-3.5" />
-          <span className="tabular-nums font-semibold">{formatTime(stopwatch.elapsed)}</span>
-        </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/8" onClick={stopwatch.toggle}>
-          {stopwatch.running ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-        </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/8"
-          onClick={stopwatch.reset} disabled={stopwatch.elapsed === 0}>
-          <Square className="h-3 w-3" />
-        </Button>
       </div>
 
       {/* Right */}

@@ -1,10 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { X } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStopwatch } from "@/hooks/presenter/useStopwatch";
 import { useFullscreen } from "@/hooks/presenter/useFullscreen";
 import { useParticipantCount } from "@/hooks/presenter/useParticipantCount";
+import { useSoothingMusic } from "@/hooks/presenter/useSoothingMusic";
+import { ALL_SHEETS } from "@/music/sheets";
+import type { MusicSheet } from "@/music/notes";
 import { FloatingReactions } from "@/components/presenter/FloatingReactions";
 import { PresenterTopBar } from "@/components/presenter/PresenterTopBar";
 import { SlideStage } from "@/components/presenter/SlideStage";
@@ -20,9 +25,12 @@ export default function PresenterView() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showResults, setShowResults] = useState(true);
+  const [qrOpen, setQrOpen] = useState(false);
+  const [activeSheet, setActiveSheet] = useState<MusicSheet>(ALL_SHEETS[0]);
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
   const stopwatch = useStopwatch();
   const participantCount = useParticipantCount(sessionId);
+  const { playing: musicPlaying, toggle: toggleMusic } = useSoothingMusic(activeSheet);
 
   const { data: session } = useQuery({
     queryKey: ["session", sessionId],
@@ -135,10 +143,49 @@ export default function PresenterView() {
   return (
     <div className="flex h-screen flex-col bg-[#080810] text-white">
       <FloatingReactions sessionId={session.id} />
+      {/* QR Modal */}
+      {qrOpen && (
+        <>
+          <button
+            aria-label="Close QR code"
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm cursor-default"
+            onClick={() => setQrOpen(false)}
+          />
+          <dialog
+            open
+            aria-label="QR Code"
+            className="fixed z-50 m-auto inset-0 flex flex-col items-center gap-6 rounded-2xl border border-white/10 bg-[#0f0f1a] p-10 shadow-2xl"
+          >
+            <button
+              onClick={() => setQrOpen(false)}
+              className="absolute right-4 top-4 text-white/40 hover:text-white transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="rounded-2xl overflow-hidden bg-white p-3">
+              <QRCodeSVG
+                value={`${globalThis.location?.origin ?? ""}/join/${session.join_code}`}
+                size={280}
+                bgColor="#ffffff"
+                fgColor="#080810"
+                level="M"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-white/40 mb-1">
+                Join at <span className="text-white/70">{globalThis.location?.origin ?? ""}/join</span>
+              </p>
+              <p className="font-mono text-5xl font-bold tracking-widest text-white">
+                {session.join_code}
+              </p>
+            </div>
+          </dialog>
+        </>
+      )}
       <PresenterTopBar
         session={session}
         participantCount={participantCount}
-        stopwatch={stopwatch}
         showResults={showResults}
         isFullscreen={isFullscreen}
         onExit={() => navigate("/dashboard")}
@@ -159,8 +206,15 @@ export default function PresenterView() {
         activeSlide={activeSlide}
         activeIndex={activeIndex}
         responseCount={responses.length}
+        stopwatch={stopwatch}
+        musicPlaying={musicPlaying}
+        activeSheet={activeSheet}
+        allSheets={ALL_SHEETS}
         onNavigate={navigateSlide}
         onJumpToSlide={jumpToSlide}
+        onOpenQR={() => setQrOpen(true)}
+        onToggleMusic={toggleMusic}
+        onSelectSheet={setActiveSheet}
       />
     </div>
   );
