@@ -11,7 +11,7 @@ export function FloatingReactions({ sessionId }: Readonly<Props>) {
 
   useEffect(() => {
     const channel = supabase
-      .channel(`presenter-reactions-${sessionId}`)
+      .channel(`reactions-${sessionId}`)
       .on("broadcast", { event: "reaction" }, ({ payload }) => {
         const e: FloatingEmoji = { id: crypto.randomUUID(), emoji: payload.emoji, x: 5 + Math.random() * 15 };
         setEmojis((prev) => [...prev.slice(-30), e]);
