@@ -149,8 +149,8 @@ export function useSlideEditor(id: string | undefined) {
     updateSlideMutation.mutate({ slideId: slide.id, data: { type, options: JSON.stringify(defaultOptions) } });
   };
 
-  const saveSlideContent = (slide: SlideRow, question: string, options: unknown) => {
-    updateSlideMutation.mutate({ slideId: slide.id, data: { question, options: JSON.stringify(options) } });
+  const saveSlideContent = (slide: SlideRow, question: string, options: unknown, imageUrl?: string) => {
+    updateSlideMutation.mutate({ slideId: slide.id, data: { question, options: JSON.stringify(options), image_url: imageUrl || null } });
   };
 
   return {

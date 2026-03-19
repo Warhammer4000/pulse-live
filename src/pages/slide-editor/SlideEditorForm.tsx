@@ -51,10 +51,10 @@ export function SlideEditorForm({ slide, canDelete, isDuplicating, onTypeChange,
       } else {
         opts = [];
       }
-      onSave(localQuestion, opts);
+      onSave(localQuestion, opts, imageUrl);
     }, 500);
     return () => clearTimeout(timer);
-  }, [localQuestion, localOptions, ratingConfig, pollStyle]);
+  }, [localQuestion, localOptions, ratingConfig, pollStyle, imageUrl]);
 
   const addOption = () =>
     setLocalOptions((prev) => [...prev, { text: `Option ${String.fromCodePoint(65 + prev.length)}` }]);
