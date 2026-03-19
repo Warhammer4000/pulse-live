@@ -38,6 +38,7 @@ export function resolveOptionItems(raw: unknown): OptionItemResolved[] {
   } else {
     return [];
   }
+  if (!Array.isArray(arr)) return [];
   return arr.map((item) => {
     if (typeof item === "string") return { text: item };
     if (typeof item === "object" && item !== null && "text" in item) return item as OptionItemResolved;

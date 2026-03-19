@@ -1,6 +1,22 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Star, GripVertical } from "lucide-react";
+import { Check, GripVertical, Star } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +31,35 @@ import { cn } from "@/lib/utils";
 import { resolveRatingConfig, resolveOptionItems } from "./utils";
 import type { SlideRow, ResponseRow } from "./types";
 
+function SortableRankItem({ id, index, label }: { readonly id: string; readonly index: number; readonly label: string }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn(
+        "flex items-center gap-2 rounded-xl border p-3 transition-colors select-none",
+        isDragging
+          ? "border-violet-500/40 bg-violet-500/10 shadow-lg shadow-violet-900/30 z-50"
+          : "border-white/8 bg-white/5"
+      )}
+    >
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-xs font-mono font-bold text-violet-400">
+        {index + 1}
+      </span>
+      <span className="flex-1 text-sm font-medium text-white">{label}</span>
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing touch-none p-1 text-white/30 hover:text-white/60 transition-colors"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 export interface SlideContentProps {
   readonly votingLocked: boolean;
   readonly isSubmitted: boolean;
@@ -27,20 +72,61 @@ export interface SlideContentProps {
   readonly onSelectOption: (opt: string) => void;
   readonly onTextChange: (val: string) => void;
   readonly onSubmitText: (val: string) => void;
+  readonly showHeader?: boolean;
 }
 
 export function SlideContent({
   votingLocked, isSubmitted, activeSlide, options, responses,
   selectedOption, textResponse, isPending, onSelectOption, onTextChange, onSubmitText,
+  showHeader = false,
 }: SlideContentProps) {
   const [rankingOrder, setRankingOrder] = useState<string[]>(() => [...options]);
   const optionItems = resolveOptionItems(activeSlide.options);
   const ratingConfig = resolveRatingConfig(activeSlide.options);
+  const imageUrl = (activeSlide as any).image_url as string | null;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setRankingOrder((items) => {
+        const from = items.indexOf(active.id as string);
+        const to = items.indexOf(over.id as string);
+        return arrayMove(items, from, to);
+      });
+    }
+  };
+
+  const header = showHeader && (
+    <>
+      <h2
+        className="mb-4 text-center text-2xl font-semibold tracking-tight text-white"
+        style={{ textWrap: "balance" as React.CSSProperties["textWrap"] }}
+      >
+        {activeSlide.question}
+      </h2>
+      {imageUrl && (
+        <div className="mb-6 flex justify-center">
+          <img
+            src={imageUrl}
+            alt=""
+            className="max-h-64 w-auto rounded-2xl border border-white/10 object-contain shadow-lg"
+            loading="lazy"
+          />
+        </div>
+      )}
+    </>
+  );
 
   if (votingLocked) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         className="flex flex-col items-center gap-3 py-8 text-center">
+        {header}
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/5 border border-white/10">
           <span className="text-2xl">🔒</span>
         </div>
@@ -53,6 +139,7 @@ export function SlideContent({
   if (isSubmitted) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
+        {header}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -66,7 +153,7 @@ export function SlideContent({
           {activeSlide.type === "word_cloud" && <WordCloudViz responses={responses} />}
           {activeSlide.type === "open_text" && <ResponseFeed responses={responses} />}
           {activeSlide.type === "rating_scale" && <RatingViz min={ratingConfig.min} max={ratingConfig.max} responses={responses} />}
-          {activeSlide.type === "quiz" && <QuizViz options={optionItems} responses={responses} />}
+          {activeSlide.type === "quiz" && <QuizViz options={optionItems.map((o) => ({ id: "", ...o }))} responses={responses} />}
           {activeSlide.type === "ranking" && <RankingViz options={options} responses={responses} />}
           {activeSlide.type === "poll" && <PollViz options={options} responses={responses} />}
         </div>
@@ -79,16 +166,9 @@ export function SlideContent({
     if (textResponse.trim()) onSubmitText(textResponse.trim());
   };
 
-  // Move ranking item
-  const moveRankItem = (from: number, to: number) => {
-    const next = [...rankingOrder];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    setRankingOrder(next);
-  };
-
   return (
     <>
+      {header}
       {/* Multiple Choice */}
       {activeSlide.type === "multiple_choice" && (
         <div className="space-y-3">
@@ -176,17 +256,16 @@ export function SlideContent({
       {/* Ranking */}
       {activeSlide.type === "ranking" && (
         <div className="space-y-2">
-          <p className="text-sm text-white/40 text-center mb-3">Tap arrows to reorder, then submit</p>
-          {rankingOrder.map((item, i) => (
-            <div key={item} className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/5 p-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg accent-bg text-xs font-mono font-bold text-white">{i + 1}</span>
-              <span className="flex-1 text-sm font-medium text-white">{item}</span>
-              <div className="flex flex-col gap-0.5">
-                <button disabled={i === 0} onClick={() => moveRankItem(i, i - 1)} className="text-white/30 hover:text-white disabled:opacity-20 text-xs">▲</button>
-                <button disabled={i === rankingOrder.length - 1} onClick={() => moveRankItem(i, i + 1)} className="text-white/30 hover:text-white disabled:opacity-20 text-xs">▼</button>
+          <p className="text-sm text-white/40 text-center mb-3">Drag to reorder, then submit</p>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={rankingOrder} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {rankingOrder.map((item, i) => (
+                  <SortableRankItem key={item} id={item} index={i} label={item} />
+                ))}
               </div>
-            </div>
-          ))}
+            </SortableContext>
+          </DndContext>
           <Button
             onClick={() => onSubmitText(JSON.stringify(rankingOrder))}
             disabled={isPending}

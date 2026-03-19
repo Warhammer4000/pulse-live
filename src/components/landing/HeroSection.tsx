@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Zap, ArrowRight, Users } from "lucide-react";
+import { Github, ArrowRight, Users, Server } from "lucide-react";
 import { fadeUp, stagger } from "./constants";
 
 export default function HeroSection() {
@@ -16,56 +16,63 @@ export default function HeroSection() {
     <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-6 pt-16">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(139,92,246,0.25),transparent)]" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-violet-600/10 rounded-full blur-[120px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,#080810_100%)]" />
       </div>
 
       <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative mx-auto max-w-5xl text-center">
         <motion.div initial="hidden" animate="visible" variants={stagger}>
-          <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2 rounded-full border accent-border accent-surface px-4 py-1.5 text-sm font-medium accent-text">
-            <Zap className="h-3.5 w-3.5" />
-            Real-time audience engagement
+          <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-400">
+            <Server className="h-3.5 w-3.5" />
+            100% open source · self-hosted · free forever
           </motion.div>
 
           <motion.h1 variants={fadeUp} className="text-6xl font-bold tracking-tight sm:text-7xl lg:text-8xl leading-[1.05]">
-            Make every talk
+            Engage your audience.
             <br />
-            <span className="accent-gradient-text">
-              unforgettable
+            <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+              Pay nobody.
             </span>
           </motion.h1>
 
           <motion.p variants={fadeUp} className="mx-auto mt-8 max-w-xl text-lg text-white/50 leading-relaxed">
-            Polls, word clouds, and live Q&A — all in one place. Share a code, and watch your audience respond in real time. No downloads required.
+            Live polls, word clouds, Q&A, quizzes and more — all in one open-source app. Deploy your own instance on Supabase + Netlify free tiers in under 5 minutes.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button
               size="lg"
-              className="h-12 px-8 text-base accent-bg accent-bg-hover text-white border-0 accent-shadow transition-all duration-200"
+              className="h-12 px-8 text-base bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40 transition-all duration-200"
               onClick={() => navigate("/auth")}
             >
               Start for free
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-12 px-8 text-base border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/20"
-              onClick={() => navigate("/join")}
+            <a
+              href="https://github.com/Warhammer4000/pulse-live"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <Users className="mr-2 h-4 w-4" />
-              Join a session
-            </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-12 px-8 text-base border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/20"
+              >
+                <Github className="mr-2 h-4 w-4" />
+                View on GitHub
+              </Button>
+            </a>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-12 flex items-center justify-center gap-6 text-sm text-white/40">
-            <span>No credit card required</span>
+          <motion.div variants={fadeUp} className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/40">
+            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />Supabase free tier</span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span>Free forever plan</span>
+            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />Netlify free tier</span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span>Setup in 30 seconds</span>
+            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />No vendor lock-in</span>
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />MIT licensed</span>
           </motion.div>
         </motion.div>
 
@@ -84,7 +91,7 @@ export default function HeroSection() {
                 <div className="w-3 h-3 rounded-full bg-white/10" />
               </div>
               <div className="flex-1 mx-4 h-6 rounded-md bg-white/5 flex items-center justify-center">
-                <span className="text-xs text-white/30">pulselive.app/session/482917</span>
+                <span className="text-xs text-white/30">your-instance.netlify.app/session/482917</span>
               </div>
             </div>
             <div className="p-6 sm:p-8">
@@ -96,7 +103,7 @@ export default function HeroSection() {
                   { label: "Managing Q&A chaos", pct: 45 },
                 ].map((opt, i) => (
                   <div key={opt.label} className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg accent-surface text-xs font-mono font-bold accent-text">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-xs font-mono font-bold text-violet-400">
                       {String.fromCodePoint(65 + i)}
                     </span>
                     <div className="flex-1">
@@ -106,7 +113,7 @@ export default function HeroSection() {
                       </div>
                       <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                         <motion.div
-                          className="h-full rounded-full accent-bg"
+                          className="h-full rounded-full bg-violet-500"
                           initial={{ width: 0 }}
                           animate={{ width: `${opt.pct}%` }}
                           transition={{ delay: 1.4 + i * 0.15, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -119,7 +126,7 @@ export default function HeroSection() {
               <div className="mt-6 flex items-center justify-between text-xs text-white/30">
                 <span>247 responses</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{"Live"}
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />Live
                 </span>
               </div>
             </div>

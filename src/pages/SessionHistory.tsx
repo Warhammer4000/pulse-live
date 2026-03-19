@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Download, BarChart3, Calendar, Users, Hash, RotateCcw, Play } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
-import { exportToCSV, parseOptions } from "./session-history/exportToCSV";
+import { exportToExcel, parseOptions } from "./session-history/exportToExcel";
 import { SlideList } from "./session-history/SlideList";
 import { SlideViz } from "./session-history/SlideViz";
 
@@ -190,11 +190,11 @@ export default function SessionHistory() {
             <Button
               size="sm"
               className="bg-white/8 hover:bg-white/12 text-white border border-white/10"
-              onClick={() => exportToCSV(presentation, slides, responses, selectedSession)}
+              onClick={() => exportToExcel(presentation, slides, responses, selectedSession)}
               disabled={responses.length === 0}
             >
               <Download className="mr-2 h-3.5 w-3.5" />
-              Export CSV
+              Export Excel
             </Button>
           )}
         </div>

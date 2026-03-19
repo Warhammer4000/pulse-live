@@ -67,7 +67,7 @@ export default function LiveSessionPage() {
     if (!session?.id) return;
     const ch = supabase.channel(`live-resp-${session.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "responses", filter: `session_id=eq.${session.id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ["live-responses", session.id] });
+        queryClient.invalidateQueries({ queryKey: ["live-responses", session.id, activeSlide?.id] });
       }).subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [session?.id, queryClient]);
@@ -180,11 +180,8 @@ export default function LiveSessionPage() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] as const }}
             className="w-full max-w-lg">
-            <h2 className="mb-6 text-center text-2xl font-semibold tracking-tight text-white"
-              style={{ textWrap: "balance" as React.CSSProperties["textWrap"] }}>
-              {activeSlide.question}
-            </h2>
             <SlideContent
+              showHeader
               votingLocked={!!session.voting_locked}
               isSubmitted={isSubmitted}
               activeSlide={activeSlide}

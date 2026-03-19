@@ -1,11 +1,20 @@
-import { BarChart3, Cloud, MessageSquare } from "lucide-react";
+import React from "react";
+import { BarChart3, Cloud, MessageSquare, Star, Trophy, List, BarChart2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
 
 type SlideRow = Tables<"slides">;
 type ResponseRow = Tables<"responses">;
 
-const slideTypeIcon = { multiple_choice: BarChart3, word_cloud: Cloud, open_text: MessageSquare };
+const slideTypeIcon: Record<string, React.ElementType> = {
+  multiple_choice: BarChart3,
+  word_cloud: Cloud,
+  open_text: MessageSquare,
+  rating_scale: Star,
+  quiz: Trophy,
+  ranking: List,
+  poll: BarChart2,
+};
 
 export function SlideList({ slides, responses, activeSlideId, onSelect }: Readonly<{
   slides: SlideRow[];
@@ -18,7 +27,7 @@ export function SlideList({ slides, responses, activeSlideId, onSelect }: Readon
       <p className="text-xs font-medium text-white/40 uppercase tracking-widest mb-3">Slides</p>
       {slides.map((slide, i) => {
         const count = responses.filter((r) => r.slide_id === slide.id).length;
-        const Icon = slideTypeIcon[slide.type];
+        const Icon = slideTypeIcon[slide.type] ?? MessageSquare;
         return (
           <button
             key={slide.id}
