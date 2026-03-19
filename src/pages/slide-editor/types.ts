@@ -38,7 +38,11 @@ export function parseOptionItems(raw: unknown): OptionItem[] {
   if (Array.isArray(raw)) {
     arr = raw;
   } else if (typeof raw === "string") {
-    try { arr = JSON.parse(raw); } catch { return []; }
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      arr = parsed;
+    } catch { return []; }
   } else {
     return [];
   }
