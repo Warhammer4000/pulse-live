@@ -75,7 +75,7 @@ export default function SlideEditor() {
             onTypeChange={(type: SlideType) => updateSlideType(selectedSlide, type)}
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
-            onSave={(question, options) => saveSlideContent(selectedSlide, question, options)}
+            onSave={(question: string, options: unknown) => saveSlideContent(selectedSlide, question, options)}
           />
         ) : (
           <div className="flex h-full items-center justify-center text-white/30 text-sm">
