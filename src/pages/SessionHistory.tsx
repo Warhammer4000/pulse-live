@@ -1,44 +1,20 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { ArrowLeft, Download, BarChart3, Cloud, MessageSquare, Calendar, Users, Hash, RotateCcw, Play } from "lucide-react";
-import { BarChartViz } from "@/components/visualizations/BarChartViz";
-import { WordCloudViz } from "@/components/visualizations/WordCloudViz";
-import { ResponseFeed } from "@/components/visualizations/ResponseFeed";
+import { ArrowLeft, Download, BarChart3, Calendar, Users, Hash, RotateCcw, Play } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
+import { exportToCSV, parseOptions } from "./session-history/exportToCSV";
+import { SlideList } from "./session-history/SlideList";
+import { SlideViz } from "./session-history/SlideViz";
 
 type SessionRow = Tables<"sessions">;
 type SlideRow = Tables<"slides">;
 type ResponseRow = Tables<"responses">;
-
-function exportToCSV(presentation: { title: string }, slides: SlideRow[], responses: ResponseRow[], session: SessionRow) {
-  const rows: string[][] = [["Presentation", "Session Code", "Session Date", "Slide #", "Question", "Type", "Response", "Participant ID", "Timestamp"]];
-  slides.forEach((slide, i) => {
-    const slideResponses = responses.filter((r) => r.slide_id === slide.id);
-    if (slideResponses.length === 0) {
-      rows.push([presentation.title, session.join_code, new Date(session.created_at).toLocaleDateString(), String(i + 1), slide.question, slide.type, "(no responses)", "", ""]);
-    } else {
-      slideResponses.forEach((r) => {
-        rows.push([presentation.title, session.join_code, new Date(session.created_at).toLocaleDateString(), String(i + 1), slide.question, slide.type, r.value, r.participant_id.slice(0, 8), new Date(r.created_at).toLocaleString()]);
-      });
-    }
-  });
-  const csv = rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${presentation.title.replace(/[^a-z0-9]/gi, "_")}_${session.join_code}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-const slideTypeIcon = { multiple_choice: BarChart3, word_cloud: Cloud, open_text: MessageSquare };
 
 export default function SessionHistory() {
   const { presentationId } = useParams<{ presentationId: string }>();
@@ -58,13 +34,13 @@ export default function SessionHistory() {
       queryClient.invalidateQueries({ queryKey: ["sessions-history", presentationId] });
       navigate(`/present/${data.id}`);
     },
-    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+    onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
   const { data: presentation } = useQuery({
     queryKey: ["presentation", presentationId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("presentations").select("*").eq("id", presentationId!).single();
+      const { data, error } = await supabase.from("presentations").select("*").eq("id", presentationId ?? "").single();
       if (error) throw error;
       return data;
     },
@@ -74,7 +50,7 @@ export default function SessionHistory() {
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
     queryKey: ["sessions-history", presentationId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("sessions").select("*").eq("presentation_id", presentationId!).order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("sessions").select("*").eq("presentation_id", presentationId ?? "").order("created_at", { ascending: false });
       if (error) throw error;
       return data as SessionRow[];
     },
@@ -84,7 +60,7 @@ export default function SessionHistory() {
   const { data: slides = [] } = useQuery({
     queryKey: ["slides", presentationId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("slides").select("*").eq("presentation_id", presentationId!).order("order");
+      const { data, error } = await supabase.from("slides").select("*").eq("presentation_id", presentationId ?? "").order("order");
       if (error) throw error;
       return data as SlideRow[];
     },
@@ -96,7 +72,7 @@ export default function SessionHistory() {
   const { data: responses = [], isLoading: responsesLoading } = useQuery({
     queryKey: ["session-responses", selectedSession?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("responses").select("*").eq("session_id", selectedSession!.id);
+      const { data, error } = await supabase.from("responses").select("*").eq("session_id", selectedSession?.id ?? "");
       if (error) throw error;
       return data as ResponseRow[];
     },
@@ -107,23 +83,102 @@ export default function SessionHistory() {
   const activeSlide = slides.find((s) => s.id === activeSlideId);
   const slideResponses = responses.filter((r) => r.slide_id === activeSlideId);
   const uniqueParticipants = new Set(responses.map((r) => r.participant_id)).size;
+  const options = parseOptions(activeSlide?.options);
 
-  const options: string[] = activeSlide?.options
-    ? (Array.isArray(activeSlide.options) ? activeSlide.options as string[] : JSON.parse(String(activeSlide.options)))
-    : [];
+  let mainContent: React.ReactNode;
+  if (sessionsLoading) {
+    mainContent = (
+      <div className="space-y-4">
+        <div className="h-10 w-64 rounded-xl bg-white/5 animate-pulse" />
+        <div className="h-64 w-full rounded-2xl bg-white/5 animate-pulse" />
+      </div>
+    );
+  } else if (sessions.length === 0) {
+    mainContent = (
+      <div className="rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center py-16 text-center">
+        <BarChart3 className="mb-4 h-10 w-10 text-white/20" />
+        <p className="text-white/60 font-medium">No sessions yet</p>
+        <p className="text-white/30 text-sm mt-1">Start a presentation to see analytics here</p>
+        <Button
+          className="mt-6 bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
+          onClick={() => navigate(`/edit/${presentationId}`)}
+        >
+          Go to Editor
+        </Button>
+      </div>
+    );
+  } else {
+    mainContent = (
+      <>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-white/40 mr-1">Session:</span>
+          {sessions.map((s) => (
+            <div key={s.id} className="flex items-center gap-1">
+              <button
+                onClick={() => { setSelectedSessionId(s.id); setSelectedSlideId(null); }}
+                className={cn(
+                  "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-all",
+                  selectedSession?.id === s.id
+                    ? "border-violet-500/30 bg-violet-500/10 text-violet-400"
+                    : "border-white/8 bg-white/5 text-white/50 hover:border-white/15 hover:text-white"
+                )}
+              >
+                <Calendar className="h-3 w-3" />
+                {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                <span className="font-mono opacity-50">#{s.join_code}</span>
+                {s.is_active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+              </button>
+              {s.is_active ? (
+                <Button size="sm" variant="ghost" className="h-8 px-2 text-violet-400 hover:bg-violet-500/10" onClick={() => navigate(`/present/${s.id}`)}>
+                  <Play className="h-3 w-3 mr-1" /> Resume
+                </Button>
+              ) : (
+                <Button size="sm" variant="ghost" className="h-8 px-2 text-white/40 hover:text-white hover:bg-white/8" onClick={() => reopenSession.mutate(s.id)} disabled={reopenSession.isPending}>
+                  <RotateCcw className="h-3 w-3 mr-1" /> Reopen
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {selectedSession && (
+          <motion.div key={selectedSession.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4 sm:grid-cols-3">
+            {[
+              { icon: Hash, label: "Total Responses", value: responses.length },
+              { icon: Users, label: "Unique Participants", value: uniqueParticipants },
+              { icon: BarChart3, label: "Avg Responses/Slide", value: slides.length > 0 ? Math.round(responses.length / slides.length) : 0 },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-5">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
+                    <stat.icon className="h-5 w-5 text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold font-mono text-white">{stat.value}</p>
+                    <p className="text-xs text-white/40">{stat.label}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {selectedSession && (
+          <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
+            <SlideList slides={slides} responses={responses} activeSlideId={activeSlideId} onSelect={setSelectedSlideId} />
+            <SlideViz activeSlide={activeSlide} slideResponses={slideResponses} options={options} responsesLoading={responsesLoading} />
+          </div>
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#080810] text-white">
-      {/* Header */}
       <header className="sticky top-0 z-10 border-b border-white/5 bg-[#080810]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white/50 hover:text-white hover:bg-white/8"
-              onClick={() => navigate("/dashboard/analytics")}
-            >
+            <Button variant="ghost" size="icon" className="text-white/50 hover:text-white hover:bg-white/8" onClick={() => navigate("/dashboard/analytics")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
@@ -144,151 +199,8 @@ export default function SessionHistory() {
           )}
         </div>
       </header>
-
       <main className="mx-auto max-w-6xl px-6 py-8 space-y-6">
-        {sessionsLoading ? (
-          <div className="space-y-4">
-            <div className="h-10 w-64 rounded-xl bg-white/5 animate-pulse" />
-            <div className="h-64 w-full rounded-2xl bg-white/5 animate-pulse" />
-          </div>
-        ) : sessions.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center py-16 text-center">
-            <BarChart3 className="mb-4 h-10 w-10 text-white/20" />
-            <p className="text-white/60 font-medium">No sessions yet</p>
-            <p className="text-white/30 text-sm mt-1">Start a presentation to see analytics here</p>
-            <Button
-              className="mt-6 bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40"
-              onClick={() => navigate(`/edit/${presentationId}`)}
-            >
-              Go to Editor
-            </Button>
-          </div>
-        ) : (
-          <>
-            {/* Session selector */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-white/40 mr-1">Session:</span>
-              {sessions.map((s) => (
-                <div key={s.id} className="flex items-center gap-1">
-                  <button
-                    onClick={() => { setSelectedSessionId(s.id); setSelectedSlideId(null); }}
-                    className={cn(
-                      "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-all",
-                      selectedSession?.id === s.id
-                        ? "border-violet-500/30 bg-violet-500/10 text-violet-400"
-                        : "border-white/8 bg-white/5 text-white/50 hover:border-white/15 hover:text-white"
-                    )}
-                  >
-                    <Calendar className="h-3 w-3" />
-                    {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                    <span className="font-mono opacity-50">#{s.join_code}</span>
-                    {s.is_active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
-                  </button>
-                  {s.is_active ? (
-                    <Button size="sm" variant="ghost" className="h-8 px-2 text-violet-400 hover:bg-violet-500/10" onClick={() => navigate(`/present/${s.id}`)}>
-                      <Play className="h-3 w-3 mr-1" /> Resume
-                    </Button>
-                  ) : (
-                    <Button size="sm" variant="ghost" className="h-8 px-2 text-white/40 hover:text-white hover:bg-white/8" onClick={() => reopenSession.mutate(s.id)} disabled={reopenSession.isPending}>
-                      <RotateCcw className="h-3 w-3 mr-1" /> Reopen
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Stats */}
-            {selectedSession && (
-              <motion.div key={selectedSession.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4 sm:grid-cols-3">
-                {[
-                  { icon: Hash, label: "Total Responses", value: responses.length },
-                  { icon: Users, label: "Unique Participants", value: uniqueParticipants },
-                  { icon: BarChart3, label: "Avg Responses/Slide", value: slides.length > 0 ? Math.round(responses.length / slides.length) : 0 },
-                ].map((stat) => (
-                  <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-5">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
-                        <stat.icon className="h-5 w-5 text-violet-400" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold font-mono text-white">{stat.value}</p>
-                        <p className="text-xs text-white/40">{stat.label}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </motion.div>
-            )}
-
-            {/* Slide list + visualization */}
-            {selectedSession && (
-              <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
-                {/* Slide list */}
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-white/40 uppercase tracking-widest mb-3">Slides</p>
-                  {slides.map((slide, i) => {
-                    const count = responses.filter((r) => r.slide_id === slide.id).length;
-                    const Icon = slideTypeIcon[slide.type];
-                    return (
-                      <button
-                        key={slide.id}
-                        onClick={() => setSelectedSlideId(slide.id)}
-                        className={cn(
-                          "flex w-full items-center gap-3 rounded-xl p-3 text-left text-sm transition-all",
-                          activeSlideId === slide.id
-                            ? "bg-violet-500/10 text-violet-400 border border-violet-500/20"
-                            : "text-white/50 hover:bg-white/5 hover:text-white border border-transparent"
-                        )}
-                      >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/5 text-xs font-mono font-semibold">
-                          {i + 1}
-                        </span>
-                        <span className="flex-1 truncate">{slide.question || "Untitled"}</span>
-                        <Icon className="h-3.5 w-3.5 shrink-0 opacity-50" />
-                        <span className="font-mono text-xs opacity-50">{count}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Visualization */}
-                <div className="rounded-2xl border border-white/8 bg-white/5 overflow-hidden">
-                  {responsesLoading ? (
-                    <div className="p-8">
-                      <div className="h-48 w-full rounded-xl bg-white/5 animate-pulse" />
-                    </div>
-                  ) : activeSlide ? (
-                    <>
-                      <div className="p-6 border-b border-white/5">
-                        <p className="text-lg font-semibold text-white">{activeSlide.question || "Untitled question"}</p>
-                        <p className="text-xs text-white/40 mt-1">
-                          {slideResponses.length} response{slideResponses.length !== 1 ? "s" : ""} · {activeSlide.type.replace("_", " ")}
-                        </p>
-                      </div>
-                      <div className="p-6">
-                        {slideResponses.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center py-12 text-center">
-                            <p className="text-white/40 text-sm">No responses for this slide</p>
-                          </div>
-                        ) : (
-                          <>
-                            {activeSlide.type === "multiple_choice" && <BarChartViz options={options} responses={slideResponses} />}
-                            {activeSlide.type === "word_cloud" && <WordCloudViz responses={slideResponses} />}
-                            {activeSlide.type === "open_text" && <ResponseFeed responses={slideResponses} />}
-                          </>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex items-center justify-center py-16 text-white/30 text-sm">
-                      Select a slide to view results
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        {mainContent}
       </main>
     </div>
   );

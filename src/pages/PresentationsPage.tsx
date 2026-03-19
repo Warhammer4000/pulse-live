@@ -12,10 +12,6 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type PresentationRow = Tables<"presentations">;
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
-};
 
 export default function PresentationsPage() {
   const { user } = useAuth();
@@ -42,7 +38,7 @@ export default function PresentationsPage() {
 
   const createMutation = useMutation({
     mutationFn: async (title: string) => {
-      const { data, error } = await supabase.from("presentations").insert({ title, user_id: user!.id }).select().single();
+      const { data, error } = await supabase.from("presentations").insert({ title, user_id: user?.id }).select().single();
       if (error) throw error;
       await supabase.from("slides").insert({
         presentation_id: data.id,
@@ -95,6 +91,84 @@ export default function PresentationsPage() {
     setNewTitle("");
   };
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => <div key={i} className="h-40 rounded-2xl bg-white/5 animate-pulse" />)}
+        </div>
+      );
+    }
+    if (filtered.length === 0) {
+      return (
+        <div className="rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center py-16 text-center">
+          <Presentation className="mb-4 h-10 w-10 text-white/20" />
+          <p className="text-white/60 font-medium">{search ? "No matching presentations" : "No presentations yet"}</p>
+          <p className="text-white/30 text-sm mt-1">{search ? "Try a different search term" : "Create your first one above"}</p>
+        </div>
+      );
+    }
+    return (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <AnimatePresence mode="popLayout">
+          {filtered.map((p) => (
+            <motion.div
+              key={p.id}
+              layout
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as const }}
+            >
+              <article className="group rounded-2xl border border-white/8 bg-white/5 hover:border-white/15 hover:bg-white/8 transition-all duration-200 flex flex-col gap-4 overflow-hidden">
+                <button
+                  className="flex items-start justify-between gap-2 p-6 pb-0 text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50 rounded-t-2xl"
+                  onClick={() => navigate(`/edit/${p.id}`)}
+                  aria-label={`Edit ${p.title}`}
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-white truncate">{p.title}</p>
+                    <p className="text-xs text-white/30 mt-0.5">
+                      Updated {new Date(p.updated_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10">
+                    <Presentation className="h-4 w-4 text-violet-400" />
+                  </div>
+                </button>
+                <div className="flex gap-2 px-6 pb-6">
+                  <Button
+                    size="sm"
+                    className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-sm shadow-violet-900/30 h-8 px-3 text-xs"
+                    onClick={() => startSession.mutate(p.id)}
+                    disabled={startSession.isPending}
+                  >
+                    <Play className="mr-1 h-3 w-3" /> Present
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-white/8 hover:bg-white/12 text-white border border-white/10 h-8 px-3 text-xs"
+                    onClick={() => navigate(`/history/${p.id}`)}
+                  >
+                    <BarChart3 className="mr-1 h-3 w-3" /> History
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="ml-auto bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 h-8 w-8 p-0"
+                    onClick={() => deleteMutation.mutate(p.id)}
+                    aria-label={`Delete ${p.title}`}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </article>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
   return (
     <div className="p-6 lg:p-10 max-w-6xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
@@ -133,73 +207,7 @@ export default function PresentationsPage() {
         </div>
       </motion.div>
 
-      {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-40 rounded-2xl bg-white/5 animate-pulse" />)}
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center py-16 text-center">
-          <Presentation className="mb-4 h-10 w-10 text-white/20" />
-          <p className="text-white/60 font-medium">{search ? "No matching presentations" : "No presentations yet"}</p>
-          <p className="text-white/30 text-sm mt-1">{search ? "Try a different search term" : "Create your first one above"}</p>
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((p) => (
-              <motion.div
-                key={p.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as const }}
-              >
-                <div
-                  className="group rounded-2xl border border-white/8 bg-white/5 p-6 hover:border-white/15 hover:bg-white/8 transition-all duration-200 cursor-pointer flex flex-col gap-4"
-                  onClick={() => navigate(`/edit/${p.id}`)}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-white truncate">{p.title}</p>
-                      <p className="text-xs text-white/30 mt-0.5">
-                        Updated {new Date(p.updated_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10">
-                      <Presentation className="h-4 w-4 text-violet-400" />
-                    </div>
-                  </div>
-                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      size="sm"
-                      className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-sm shadow-violet-900/30 h-8 px-3 text-xs"
-                      onClick={() => startSession.mutate(p.id)}
-                      disabled={startSession.isPending}
-                    >
-                      <Play className="mr-1 h-3 w-3" /> Present
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-white/8 hover:bg-white/12 text-white border border-white/10 h-8 px-3 text-xs"
-                      onClick={() => navigate(`/history/${p.id}`)}
-                    >
-                      <BarChart3 className="mr-1 h-3 w-3" /> History
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="ml-auto bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 h-8 w-8 p-0"
-                      onClick={() => deleteMutation.mutate(p.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 }

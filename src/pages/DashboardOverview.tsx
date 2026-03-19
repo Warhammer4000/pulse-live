@@ -67,19 +67,33 @@ export default function DashboardOverview() {
   ];
 
   return (
-    <div className="p-6 lg:p-10 max-w-6xl mx-auto space-y-8">
-      <motion.div initial="hidden" animate="visible" variants={stagger}>
-        <motion.div variants={fadeUp}>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Welcome back, <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">{displayName}</span>
-          </h1>
-          <p className="mt-1 text-sm text-white/40">Here's an overview of your PulseLive activity</p>
+    <div className="p-8 lg:p-12 max-w-6xl mx-auto space-y-10">
+      <motion.div initial="hidden" animate="visible" variants={stagger} className="space-y-10">
+        {/* Header + quick actions */}
+        <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div>
+            <p className="text-xs font-medium text-violet-400 tracking-widest uppercase mb-2">Dashboard</p>
+            <h1 className="text-3xl font-bold tracking-tight text-white">
+              Welcome back, <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">{displayName}</span>
+            </h1>
+            <p className="mt-1.5 text-sm text-white/40">Here's an overview of your PulseLive activity</p>
+          </div>
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <Button className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40 rounded-xl" onClick={() => navigate("/dashboard/presentations")}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Presentation
+            </Button>
+            <Button className="bg-white/8 hover:bg-white/12 text-white border border-white/10 rounded-xl" onClick={() => navigate("/dashboard/analytics")}>
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Analytics
+            </Button>
+          </div>
         </motion.div>
 
         {/* Stats */}
-        <motion.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-8">
+        <motion.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-5">
+            <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-5 hover:border-white/15 hover:bg-white/8 transition-all duration-200">
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
                   <stat.icon className="h-5 w-5 text-violet-400" />
@@ -93,23 +107,11 @@ export default function DashboardOverview() {
           ))}
         </motion.div>
 
-        {/* Quick actions */}
-        <motion.div variants={fadeUp} className="flex flex-wrap gap-3">
-          <Button className="bg-violet-600 hover:bg-violet-500 text-white border-0 shadow-lg shadow-violet-900/40" onClick={() => navigate("/dashboard/presentations")}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Presentation
-          </Button>
-          <Button className="bg-white/8 hover:bg-white/12 text-white border border-white/10" onClick={() => navigate("/dashboard/analytics")}>
-            <BarChart3 className="mr-2 h-4 w-4" />
-            View Analytics
-          </Button>
-        </motion.div>
-
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Recent Presentations */}
           <motion.div variants={fadeUp}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-white">Recent Presentations</h2>
+              <h2 className="text-sm font-semibold text-white/60 tracking-widest uppercase">Recent Presentations</h2>
               <button onClick={() => navigate("/dashboard/presentations")} className="flex items-center gap-1 text-xs text-white/40 hover:text-violet-400 transition-colors">
                 View all <ArrowRight className="h-3 w-3" />
               </button>
@@ -145,7 +147,7 @@ export default function DashboardOverview() {
           {/* Recent Sessions */}
           <motion.div variants={fadeUp}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-white">Recent Sessions</h2>
+              <h2 className="text-sm font-semibold text-white/60 tracking-widest uppercase">Recent Sessions</h2>
               <button onClick={() => navigate("/dashboard/analytics")} className="flex items-center gap-1 text-xs text-white/40 hover:text-violet-400 transition-colors">
                 View all <ArrowRight className="h-3 w-3" />
               </button>

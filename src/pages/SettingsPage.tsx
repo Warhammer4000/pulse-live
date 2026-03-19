@@ -37,7 +37,7 @@ export default function SettingsPage() {
     try {
       const { error } = await supabase.auth.updateUser({ data: { display_name: displayName } });
       if (error) throw error;
-      await supabase.from("profiles").update({ display_name: displayName }).eq("user_id", user!.id);
+      await supabase.from("profiles").update({ display_name: displayName }).eq("user_id", user.id);
       toast({ title: "Profile updated", description: "Your display name has been saved." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });

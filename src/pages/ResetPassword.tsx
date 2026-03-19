@@ -16,7 +16,7 @@ export default function ResetPassword() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hashParams = new URLSearchParams(globalThis.location.hash.substring(1));
     if (!hashParams.get("type") || hashParams.get("type") !== "recovery") {
       // Not a valid recovery link
     }
