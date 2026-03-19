@@ -3,7 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatTime } from "@/hooks/presenter/useStopwatch";
-import type { MusicSheet } from "@/music/notes";
+import type { RadioStation } from "@/music/stations";
 import type { Tables } from "@/integrations/supabase/types";
 
 type SlideRow = Tables<"slides">;
@@ -24,19 +24,19 @@ interface Props {
   responseCount: number;
   stopwatch: StopwatchState;
   musicPlaying: boolean;
-  activeSheet: MusicSheet;
-  allSheets: MusicSheet[];
+  activeStation: RadioStation;
+  stations: RadioStation[];
   onNavigate: (direction: "prev" | "next") => void;
   onJumpToSlide: (slideId: string) => void;
   onOpenQR: () => void;
   onToggleMusic: () => void;
-  onSelectSheet: (sheet: MusicSheet) => void;
+  onSelectStation: (station: RadioStation) => void;
 }
 
 export function PresenterFooter({
   session, slides, activeSlide, activeIndex, responseCount,
-  stopwatch, musicPlaying, activeSheet, allSheets,
-  onNavigate, onJumpToSlide, onOpenQR, onToggleMusic, onSelectSheet,
+  stopwatch, musicPlaying, activeStation, stations,
+  onNavigate, onJumpToSlide, onOpenQR, onToggleMusic, onSelectStation,
 }: Readonly<Props>) {
   const origin = globalThis.location?.origin ?? "";
 
@@ -128,20 +128,21 @@ export function PresenterFooter({
             </Button>
           </div>
 
-          {/* Sheet picker — only visible when music is playing or hovered */}
+          {/* Station picker */}
           <div className="flex items-center gap-1">
-            {allSheets.map((sheet) => (
+            {stations.map((s) => (
               <button
-                key={sheet.name}
-                onClick={() => onSelectSheet(sheet)}
+                key={s.id}
+                onClick={() => onSelectStation(s)}
+                title={s.description}
                 className={cn(
                   "rounded-full px-2.5 py-0.5 text-xs font-medium transition-all",
-                  sheet.name === activeSheet.name
+                  s.id === activeStation.id
                     ? "bg-violet-500/20 border border-violet-500/30 text-violet-400"
                     : "bg-white/5 border border-white/8 text-white/30 hover:text-white/60 hover:bg-white/8",
                 )}
               >
-                {sheet.name}
+                {s.name}
               </button>
             ))}
           </div>

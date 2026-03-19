@@ -8,8 +8,6 @@ import { useStopwatch } from "@/hooks/presenter/useStopwatch";
 import { useFullscreen } from "@/hooks/presenter/useFullscreen";
 import { useParticipantCount } from "@/hooks/presenter/useParticipantCount";
 import { useSoothingMusic } from "@/hooks/presenter/useSoothingMusic";
-import { ALL_SHEETS } from "@/music/sheets";
-import type { MusicSheet } from "@/music/notes";
 import { FloatingReactions } from "@/components/presenter/FloatingReactions";
 import { PresenterTopBar } from "@/components/presenter/PresenterTopBar";
 import { SlideStage } from "@/components/presenter/SlideStage";
@@ -26,11 +24,10 @@ export default function PresenterView() {
   const queryClient = useQueryClient();
   const [showResults, setShowResults] = useState(true);
   const [qrOpen, setQrOpen] = useState(false);
-  const [activeSheet, setActiveSheet] = useState<MusicSheet>(ALL_SHEETS[0]);
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
   const stopwatch = useStopwatch();
   const participantCount = useParticipantCount(sessionId);
-  const { playing: musicPlaying, toggle: toggleMusic } = useSoothingMusic(activeSheet);
+  const { playing: musicPlaying, toggle: toggleMusic, station, selectStation, stations } = useSoothingMusic();
 
   const { data: session } = useQuery({
     queryKey: ["session", sessionId],
@@ -208,13 +205,13 @@ export default function PresenterView() {
         responseCount={responses.length}
         stopwatch={stopwatch}
         musicPlaying={musicPlaying}
-        activeSheet={activeSheet}
-        allSheets={ALL_SHEETS}
+        activeStation={station}
+        stations={stations}
         onNavigate={navigateSlide}
         onJumpToSlide={jumpToSlide}
         onOpenQR={() => setQrOpen(true)}
         onToggleMusic={toggleMusic}
-        onSelectSheet={setActiveSheet}
+        onSelectStation={selectStation}
       />
     </div>
   );
