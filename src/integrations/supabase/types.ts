@@ -153,6 +153,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          image_url: string | null
           options: Json | null
           order: number
           presentation_id: string
@@ -163,6 +164,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          image_url?: string | null
           options?: Json | null
           order?: number
           presentation_id: string
@@ -173,6 +175,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          image_url?: string | null
           options?: Json | null
           order?: number
           presentation_id?: string
@@ -198,7 +201,14 @@ export type Database = {
       close_stale_sessions: { Args: never; Returns: undefined }
     }
     Enums: {
-      slide_type: "multiple_choice" | "word_cloud" | "open_text"
+      slide_type:
+        | "multiple_choice"
+        | "word_cloud"
+        | "open_text"
+        | "rating_scale"
+        | "quiz"
+        | "ranking"
+        | "poll"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -326,7 +336,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      slide_type: ["multiple_choice", "word_cloud", "open_text"],
+      slide_type: [
+        "multiple_choice",
+        "word_cloud",
+        "open_text",
+        "rating_scale",
+        "quiz",
+        "ranking",
+        "poll",
+      ],
     },
   },
 } as const

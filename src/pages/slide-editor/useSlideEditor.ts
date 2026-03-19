@@ -42,7 +42,7 @@ export function useSlideEditor(id: string | undefined) {
         order: maxOrder,
         type: "multiple_choice" as const,
         question: "",
-        options: JSON.stringify(["Option A", "Option B"]),
+        options: JSON.stringify([{ text: "Option A" }, { text: "Option B" }]),
       }).select().single();
       if (error) throw error;
       return data;
@@ -83,8 +83,8 @@ export function useSlideEditor(id: string | undefined) {
   });
 
   const updateSlideMutation = useMutation({
-    mutationFn: async ({ slideId, data }: { slideId: string; data: Partial<Pick<SlideRow, "question" | "type" | "options">> }) => {
-      const { error } = await supabase.from("slides").update(data).eq("id", slideId);
+    mutationFn: async ({ slideId, data }: { slideId: string; data: Record<string, unknown> }) => {
+      const { error } = await supabase.from("slides").update(data as any).eq("id", slideId);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["slides", id] }),
@@ -138,10 +138,18 @@ export function useSlideEditor(id: string | undefined) {
   };
 
   const updateSlideType = (slide: SlideRow, type: SlideType) => {
-    updateSlideMutation.mutate({ slideId: slide.id, data: { type } });
+    // Set sensible default options for new types
+    let defaultOptions: unknown = [];
+    if (type === "multiple_choice") defaultOptions = [{ text: "Option A" }, { text: "Option B" }];
+    else if (type === "quiz") defaultOptions = [{ text: "Option A", is_correct: true }, { text: "Option B", is_correct: false }];
+    else if (type === "ranking") defaultOptions = [{ text: "Item A" }, { text: "Item B" }, { text: "Item C" }];
+    else if (type === "rating_scale") defaultOptions = { min: 1, max: 5 };
+    else if (type === "poll") defaultOptions = ["Yes", "No"];
+
+    updateSlideMutation.mutate({ slideId: slide.id, data: { type, options: JSON.stringify(defaultOptions) } });
   };
 
-  const saveSlideContent = (slide: SlideRow, question: string, options: string[]) => {
+  const saveSlideContent = (slide: SlideRow, question: string, options: unknown) => {
     updateSlideMutation.mutate({ slideId: slide.id, data: { question, options: JSON.stringify(options) } });
   };
 
