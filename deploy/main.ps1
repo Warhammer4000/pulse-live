@@ -36,9 +36,16 @@ function Show-Summary([string]$url, [string]$anonKey) {
 }
 
 # Shared state set by sub-steps
-$script:SupabaseCreds     = $null
+$script:SupabaseCreds      = $null
 $script:SupabaseProjectRef = ""
-$script:NetlifySiteUrl    = ""
+$script:NetlifySiteUrl     = ""
+
+# Read default project name from package.json
+$script:DefaultProjectName = "my-app"
+try {
+    $pkg = Get-Content (Join-Path $PSScriptRoot "../package.json") -Raw | ConvertFrom-Json
+    if ($pkg.name) { $script:DefaultProjectName = $pkg.name -replace "_", "-" }
+} catch { }
 
 Write-Header
 Check-Prerequisites

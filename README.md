@@ -15,7 +15,16 @@ Built with React, Vite, Tailwind CSS, and Supabase.
 
 ## Quick start
 
-See **[docs/getting-started.md](./docs/getting-started.md)** for the full deployment guide covering:
+```bash
+git clone https://github.com/your-username/pulse-live.git
+cd pulse-live
+```
+
+Then double-click **`deploy.bat`** — it will walk you through Supabase setup, database migrations, and Netlify deployment interactively.
+
+> Requires Windows. You'll need [Node.js](https://nodejs.org) installed. The script will offer to install the Supabase and Netlify CLIs automatically if they're missing.
+
+For the full manual deployment guide see **[docs/getting-started.md](./docs/getting-started.md)** covering:
 
 - Supabase project setup and running migrations
 - Deploying to Netlify

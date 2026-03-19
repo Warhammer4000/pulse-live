@@ -19,13 +19,21 @@ function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
         Write-Success "Logged in to Netlify  $userLine"
     }
 
-    # Site link check — state.json presence + netlify status text
+    # Site link check — verify state.json has a site ID that actually exists on Netlify
     $stateFile = Join-Path $PSScriptRoot "../.netlify/state.json"
     $siteStatusText = (netlify status 2>&1) -join "`n"
-    $stateHasSite = (Test-Path $stateFile) -and ((Get-Content $stateFile -Raw) -match '"siteId"\s*:\s*"[a-f0-9\-]+"')
-    $isLinked = $stateHasSite -or ($siteStatusText -match "Current site:|Current project:|Linked to |Project already linked")
+
+    # A site is truly linked only if netlify status shows a real project name (not "undefined")
+    $isLinked = $siteStatusText -match "Current (?:site|project):\s*(?!undefined)\S+"
 
     if (-not $isLinked) {
+        # Clear any stale state.json before presenting options
+        $stateFile = Join-Path $PSScriptRoot "../.netlify/state.json"
+        if (Test-Path $stateFile) {
+            Remove-Item $stateFile -Force
+            Write-Info "Cleared stale site link."
+        }
+
         $idx = Show-Menu "No site linked. What would you like to do?" @(
             "Link to an existing Netlify site",
             "Create a new Netlify site"
@@ -89,13 +97,10 @@ function Step-Netlify([string]$supabaseUrl, [string]$anonKey) {
 
 function Invoke-NetlifyLink {
     Write-Step "Linking to existing site..."
-    $stateFile = Join-Path $PSScriptRoot "../.netlify/state.json"
-    if (Test-Path $stateFile) { Remove-Item $stateFile -Force }
     Invoke-NetlifyInteractive @("link")
 
     $siteStatusText = (netlify status 2>&1) -join "`n"
-    $stateHasSite = (Test-Path $stateFile) -and ((Get-Content $stateFile -Raw) -match '"siteId"\s*:\s*"[a-f0-9\-]+"')
-    if (-not $stateHasSite -and $siteStatusText -notmatch "Current site:|Current project:") {
+    if ($siteStatusText -notmatch "Current (?:site|project):\s*(?!undefined)\S+") {
         Write-Err "Site linking failed or was cancelled."
         exit 1
     }
@@ -104,19 +109,13 @@ function Invoke-NetlifyLink {
 function Invoke-NetlifyCreate {
     Write-Step "Creating a new site and linking..."
 
-    # Clear stale state.json — prevents "already linked to undefined" error
-    $stateFile = Join-Path $PSScriptRoot "../.netlify/state.json"
-    if (Test-Path $stateFile) {
-        Remove-Item $stateFile -Force
-        Write-Info "Cleared stale site link."
-    }
-
     # Fetch teams to pass --account-slug, bypassing the broken interactive
     # team picker in netlify CLI (crashes in non-native TTY on Windows)
     $accountSlug = Get-NetlifyAccountSlug
 
-    Write-Host "  Site name (leave blank for random): " -ForegroundColor White -NoNewline
-    $siteName = Read-Host
+    Write-Host "  Site name [$script:DefaultProjectName]: " -ForegroundColor White -NoNewline
+    $input = Read-Host
+    $siteName = if ($input.Trim() -ne "") { $input.Trim() } else { $script:DefaultProjectName }
 
     $createArgs = @("sites:create")
     if ($accountSlug) { $createArgs += @("--account-slug", $accountSlug) }

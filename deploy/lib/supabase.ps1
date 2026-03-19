@@ -38,12 +38,21 @@ function Step-Supabase {
     # Project selection
     Write-Host ""
     Write-Step "Fetching your Supabase projects..."
-    $projects = ConvertFrom-SupabaseJson ((Invoke-Supabase projects list --output json 2>&1) -join "`n")
+    $projectsRaw = (Invoke-Supabase projects list --output json 2>&1) -join "`n"
+    $projects = @()
+    try {
+        $parsed = ConvertFrom-SupabaseJson $projectsRaw
+        if ($parsed) { $projects = @($parsed) }
+    } catch { }
 
-    $options = @($projects | ForEach-Object { "$($_.name)  ($($_.id))" }) + "[ Create a new project ]"
-    $idx = Show-Menu "Select a Supabase project:" $options
+    $idx = -1
+    if ($projects.Count -gt 0) {
+        $options = @($projects | ForEach-Object { "$($_.name)  ($($_.id))" }) + "[ Create a new project ]"
+        $idx = Show-Menu "Select a Supabase project:" $options
+    }
 
-    if ($idx -eq $options.Count - 1) {
+    if ($idx -eq -1 -or $idx -eq $projects.Count) {
+        if ($projects.Count -eq 0) { Write-Info "No existing projects found — creating a new one." }
         $project = New-SupabaseProject
     } else {
         $project = $projects[$idx]
@@ -102,8 +111,9 @@ function New-SupabaseProject {
     $orgId = $orgs[$orgIdx].id
 
     Write-Host ""
-    Write-Host "  Project name: " -ForegroundColor White -NoNewline
-    $projName = Read-Host
+    Write-Host "  Project name [$script:DefaultProjectName]: " -ForegroundColor White -NoNewline
+    $input = Read-Host
+    $projName = if ($input.Trim() -ne "") { $input.Trim() } else { $script:DefaultProjectName }
 
     $regions = @(
         "us-east-1","us-west-1","us-west-2",

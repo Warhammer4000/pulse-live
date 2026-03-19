@@ -73,7 +73,8 @@ function Check-Prerequisites {
 
     # Netlify CLI
     if (Get-Command netlify -ErrorAction SilentlyContinue) {
-        Write-Success "netlify CLI   $((netlify --version 2>&1) -split "`n" | Select-Object -First 1)"
+        $netlifyVer = (netlify --version 2>&1) -split "`n" | Select-Object -First 1
+        Write-Success "netlify CLI   $netlifyVer"
     } else {
         Write-Warn "netlify CLI not found."
         if (Ask-YesNo "Install netlify CLI now?  (npm install -g netlify-cli)") {
