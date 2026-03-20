@@ -9,6 +9,10 @@ export function getParticipantId(): string {
 
 export function resolveOptions(raw: unknown): string[] {
   if (!raw) return [];
+  // Handle quiz wrapper format { items: [...], timer_seconds: ... }
+  if (typeof raw === "object" && !Array.isArray(raw) && raw !== null && "items" in raw) {
+    return resolveOptions((raw as Record<string, unknown>).items);
+  }
   if (Array.isArray(raw)) {
     return raw.map((item) => {
       if (typeof item === "string") return item;
