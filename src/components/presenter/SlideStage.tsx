@@ -47,6 +47,27 @@ export function SlideStage({ activeSlide, responses, showResults, quizTimeLeft, 
           >
             {activeSlide.question ?? "Waiting for question..."}
           </h2>
+          {hasTimer && (
+            <div className="mb-6 flex flex-col items-center gap-2">
+              <span className={cn(
+                "font-mono text-3xl font-bold tabular-nums",
+                quizTimeLeft <= 5 ? "text-red-400 animate-pulse" : quizTimeLeft <= 10 ? "text-amber-400" : "text-emerald-400",
+              )}>
+                {quizTimeLeft}s
+              </span>
+              <div className="h-2 w-64 rounded-full bg-white/10 overflow-hidden">
+                <motion.div
+                  className={cn(
+                    "h-full rounded-full",
+                    quizTimeLeft <= 5 ? "bg-red-500" : quizTimeLeft <= 10 ? "bg-amber-500" : "bg-emerald-500",
+                  )}
+                  initial={{ width: "100%" }}
+                  animate={{ width: `${(quizTimeLeft / quizTotalSeconds) * 100}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+            </div>
+          )}
           {showResults && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
