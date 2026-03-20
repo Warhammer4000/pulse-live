@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Music, VolumeX } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Music, VolumeX, Copy, Check } from "lucide-react";
+import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
