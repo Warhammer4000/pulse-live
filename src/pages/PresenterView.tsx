@@ -8,6 +8,7 @@ import { useStopwatch } from "@/hooks/presenter/useStopwatch";
 import { useFullscreen } from "@/hooks/presenter/useFullscreen";
 import { useParticipantCount } from "@/hooks/presenter/useParticipantCount";
 import { useSoothingMusic } from "@/hooks/presenter/useSoothingMusic";
+import { useQuizTimer } from "@/hooks/presenter/useQuizTimer";
 import { FloatingReactions } from "@/components/presenter/FloatingReactions";
 import { PresenterTopBar } from "@/components/presenter/PresenterTopBar";
 import { SlideStage } from "@/components/presenter/SlideStage";
