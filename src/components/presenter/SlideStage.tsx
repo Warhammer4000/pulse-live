@@ -16,6 +16,8 @@ interface Props {
   activeSlide: SlideRow;
   responses: ResponseRow[];
   showResults: boolean;
+  quizTimeLeft?: number | null;
+  quizTotalSeconds?: number | null;
 }
 
 export function SlideStage({ activeSlide, responses, showResults }: Readonly<Props>) {
