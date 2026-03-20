@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
 import { WordCloudViz } from "@/components/visualizations/WordCloudViz";
 import { ResponseFeed } from "@/components/visualizations/ResponseFeed";

@@ -30,11 +30,6 @@ export default function PresenterView() {
   const participantCount = useParticipantCount(sessionId);
   const { playing: musicPlaying, toggle: toggleMusic, station, selectStation, stations } = useSoothingMusic();
 
-  const activeSlide = slides.find((s) => s.id === session?.active_slide_id);
-  const quizTimer = useQuizTimer(activeSlide, sessionId, () => {
-    queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
-  });
-
   const { data: session } = useQuery({
     queryKey: ["session", sessionId],
     queryFn: async () => {
@@ -51,7 +46,7 @@ export default function PresenterView() {
       const { data, error } = await supabase
         .from("slides")
         .select("*")
-        .eq("presentation_id", session.presentation_id)
+        .eq("presentation_id", session!.presentation_id)
         .order("order");
       if (error) throw error;
       return data as SlideRow[];
@@ -59,7 +54,12 @@ export default function PresenterView() {
     enabled: !!session?.presentation_id,
   });
 
+  const activeSlide = slides.find((s) => s.id === session?.active_slide_id);
   const activeIndex = slides.findIndex((s) => s.id === session?.active_slide_id);
+
+  const quizTimer = useQuizTimer(activeSlide, sessionId, () => {
+    queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
+  });
 
   const { data: responses = [] } = useQuery({
     queryKey: ["responses", sessionId, activeSlide?.id],
