@@ -20,11 +20,12 @@ interface Props {
   quizTotalSeconds?: number | null;
 }
 
-export function SlideStage({ activeSlide, responses, showResults }: Readonly<Props>) {
+export function SlideStage({ activeSlide, responses, showResults, quizTimeLeft, quizTotalSeconds }: Readonly<Props>) {
   const optionItems = parseOptionItems(activeSlide.options);
   const options = optionTexts(optionItems);
   const ratingConfig = parseRatingConfig(activeSlide.options);
   const imageUrl = (activeSlide as any).image_url;
+  const hasTimer = quizTimeLeft !== null && quizTimeLeft !== undefined && quizTotalSeconds;
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-8 overflow-hidden">
