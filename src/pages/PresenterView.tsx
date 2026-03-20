@@ -59,7 +59,6 @@ export default function PresenterView() {
     enabled: !!session?.presentation_id,
   });
 
-  const activeSlide = slides.find((s) => s.id === session?.active_slide_id);
   const activeIndex = slides.findIndex((s) => s.id === session?.active_slide_id);
 
   const { data: responses = [] } = useQuery({
