@@ -24,6 +24,7 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
     return items.length > 0 ? items.map((i) => i.text) : ["Yes", "No"];
   });
   const [imageUrl, setImageUrl] = useState((slide as any).image_url ?? "");
+  const [quizTimer, setQuizTimer] = useState<number | null>(() => parseQuizTimerSeconds(slide.options));
 
   useEffect(() => {
     setLocalQuestion(slide.question);
