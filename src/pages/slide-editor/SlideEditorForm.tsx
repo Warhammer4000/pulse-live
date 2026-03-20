@@ -43,7 +43,10 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
         opts = ratingConfig;
       } else if (slide.type === "poll") {
         opts = pollStyle;
-      } else if (slide.type === "multiple_choice" || slide.type === "quiz" || slide.type === "ranking") {
+      } else if (slide.type === "quiz") {
+        // Wrap quiz options with timer config
+        opts = { items: localOptions, timer_seconds: quizTimer };
+      } else if (slide.type === "multiple_choice" || slide.type === "ranking") {
         opts = localOptions;
       } else {
         opts = [];
@@ -51,7 +54,7 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
       onSave(localQuestion, opts, imageUrl);
     }, 500);
     return () => clearTimeout(timer);
-  }, [localQuestion, localOptions, ratingConfig, pollStyle, imageUrl]);
+  }, [localQuestion, localOptions, ratingConfig, pollStyle, imageUrl, quizTimer]);
 
   const addOption = () =>
     setLocalOptions((prev) => [...prev, { id: crypto.randomUUID(), text: `Option ${String.fromCodePoint(65 + prev.length)}` }]);
