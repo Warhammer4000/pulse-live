@@ -202,7 +202,26 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
         </div>
       )}
 
-      {/* Rating Scale config */}
+      {/* Quiz Timer config */}
+      {slide.type === "quiz" && (
+        <div className="space-y-3">
+          <Label className="text-white/60 text-sm flex items-center gap-1.5">
+            <Timer className="h-3.5 w-3.5" /> Countdown Timer
+          </Label>
+          <Select value={quizTimer ? String(quizTimer) : "none"} onValueChange={(v) => setQuizTimer(v === "none" ? null : Number(v))}>
+            <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-primary/30 w-52">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#0f0f1a] border-white/10 text-white">
+              <SelectItem value="none" className="focus:accent-surface focus:accent-text">No timer</SelectItem>
+              <SelectItem value="10" className="focus:accent-surface focus:accent-text">10 seconds</SelectItem>
+              <SelectItem value="20" className="focus:accent-surface focus:accent-text">20 seconds</SelectItem>
+              <SelectItem value="30" className="focus:accent-surface focus:accent-text">30 seconds</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {slide.type === "rating_scale" && (
         <div className="space-y-3">
           <Label className="text-white/60 text-sm">Scale Range</Label>

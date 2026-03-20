@@ -97,9 +97,20 @@ export function PresenterFooter({
           <div>
             <p className="text-xs text-white/40 mb-0.5">Join at</p>
             <p className="text-sm text-white/60">{origin}/join</p>
-            <p className="font-mono text-4xl font-bold tracking-widest text-white mt-0.5">
-              {session.join_code}
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="font-mono text-4xl font-bold tracking-widest text-white">
+                {session.join_code}
+              </p>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/8"
+                onClick={handleCopy}
+                title="Copy join URL"
+              >
+                {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
         </div>
 
