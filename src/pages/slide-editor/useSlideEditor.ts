@@ -141,7 +141,7 @@ export function useSlideEditor(id: string | undefined) {
     // Set sensible default options for new types
     let defaultOptions: unknown = [];
     if (type === "multiple_choice") defaultOptions = [{ text: "Option A" }, { text: "Option B" }];
-    else if (type === "quiz") defaultOptions = [{ text: "Option A", is_correct: true }, { text: "Option B", is_correct: false }];
+    else if (type === "quiz") defaultOptions = { items: [{ text: "Option A", is_correct: true }, { text: "Option B", is_correct: false }], timer_seconds: null };
     else if (type === "ranking") defaultOptions = [{ text: "Item A" }, { text: "Item B" }, { text: "Item C" }];
     else if (type === "rating_scale") defaultOptions = { min: 1, max: 5 };
     else if (type === "poll") defaultOptions = ["Yes", "No"];
