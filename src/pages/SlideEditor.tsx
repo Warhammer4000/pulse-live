@@ -83,11 +83,7 @@ export default function SlideEditor() {
         {selectedSlide ? (
           <SlideEditorForm
             slide={selectedSlide}
-            canDelete={slides.length > 1}
-            isDuplicating={duplicateSlideMutation.isPending}
             onTypeChange={(type: SlideType) => updateSlideType(selectedSlide, type)}
-            onDuplicate={handleDuplicate}
-            onDelete={handleDelete}
             onSave={(question: string, options: unknown, imageUrl: string) => saveSlideContent(selectedSlide, question, options, imageUrl)}
           />
         ) : (
