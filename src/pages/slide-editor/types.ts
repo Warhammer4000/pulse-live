@@ -79,3 +79,16 @@ export function parseRatingConfig(raw: unknown): { min: number; max: number } {
   }
   return { min: 1, max: 5 };
 }
+
+/** Parse quiz timer seconds from options JSONB wrapper */
+export function parseQuizTimerSeconds(raw: unknown): number | null {
+  let obj = raw;
+  if (typeof obj === "string") {
+    try { obj = JSON.parse(obj); } catch { return null; }
+  }
+  if (obj && typeof obj === "object" && !Array.isArray(obj) && "timer_seconds" in obj) {
+    const val = (obj as Record<string, unknown>).timer_seconds;
+    return typeof val === "number" && val > 0 ? val : null;
+  }
+  return null;
+}
