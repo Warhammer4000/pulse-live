@@ -201,6 +201,8 @@ export default function PresenterView() {
         activeSlide={activeSlide}
         responses={responses}
         showResults={showResults}
+        quizTimeLeft={quizTimer.timeLeft}
+        quizTotalSeconds={quizTimer.totalSeconds}
       />
       <PresenterFooter
         session={session}
