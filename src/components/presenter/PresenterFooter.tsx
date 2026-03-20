@@ -40,6 +40,16 @@ export function PresenterFooter({
   onNavigate, onJumpToSlide, onOpenQR, onToggleMusic, onSelectStation,
 }: Readonly<Props>) {
   const origin = globalThis.location?.origin ?? "";
+  const joinUrl = `${origin}/join/${session.join_code}`;
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(joinUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* ignore */ }
+  };
 
   return (
     <div className="border-t border-white/5 bg-[#080810]/90 backdrop-blur-xl shrink-0">
