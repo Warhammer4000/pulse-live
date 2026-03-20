@@ -8,6 +8,7 @@ import { useStopwatch } from "@/hooks/presenter/useStopwatch";
 import { useFullscreen } from "@/hooks/presenter/useFullscreen";
 import { useParticipantCount } from "@/hooks/presenter/useParticipantCount";
 import { useSoothingMusic } from "@/hooks/presenter/useSoothingMusic";
+import { useQuizTimer } from "@/hooks/presenter/useQuizTimer";
 import { FloatingReactions } from "@/components/presenter/FloatingReactions";
 import { PresenterTopBar } from "@/components/presenter/PresenterTopBar";
 import { SlideStage } from "@/components/presenter/SlideStage";
@@ -45,7 +46,7 @@ export default function PresenterView() {
       const { data, error } = await supabase
         .from("slides")
         .select("*")
-        .eq("presentation_id", session.presentation_id)
+        .eq("presentation_id", session!.presentation_id)
         .order("order");
       if (error) throw error;
       return data as SlideRow[];
@@ -55,6 +56,10 @@ export default function PresenterView() {
 
   const activeSlide = slides.find((s) => s.id === session?.active_slide_id);
   const activeIndex = slides.findIndex((s) => s.id === session?.active_slide_id);
+
+  const quizTimer = useQuizTimer(activeSlide, sessionId, () => {
+    queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
+  });
 
   const { data: responses = [] } = useQuery({
     queryKey: ["responses", sessionId, activeSlide?.id],
@@ -196,6 +201,8 @@ export default function PresenterView() {
         activeSlide={activeSlide}
         responses={responses}
         showResults={showResults}
+        quizTimeLeft={quizTimer.timeLeft}
+        quizTotalSeconds={quizTimer.totalSeconds}
       />
       <PresenterFooter
         session={session}

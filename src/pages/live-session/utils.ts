@@ -9,6 +9,10 @@ export function getParticipantId(): string {
 
 export function resolveOptions(raw: unknown): string[] {
   if (!raw) return [];
+  // Handle quiz wrapper format { items: [...], timer_seconds: ... }
+  if (typeof raw === "object" && !Array.isArray(raw) && raw !== null && "items" in raw) {
+    return resolveOptions((raw as Record<string, unknown>).items);
+  }
   if (Array.isArray(raw)) {
     return raw.map((item) => {
       if (typeof item === "string") return item;
@@ -30,11 +34,21 @@ export interface OptionItemResolved {
 
 export function resolveOptionItems(raw: unknown): OptionItemResolved[] {
   if (!raw) return [];
+  // Handle quiz wrapper format
+  if (typeof raw === "object" && !Array.isArray(raw) && raw !== null && "items" in raw) {
+    return resolveOptionItems((raw as Record<string, unknown>).items);
+  }
   let arr: unknown[];
   if (Array.isArray(raw)) {
     arr = raw;
   } else if (typeof raw === "string") {
-    try { arr = JSON.parse(raw); } catch { return []; }
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed) && "items" in parsed) {
+        return resolveOptionItems(parsed);
+      }
+      arr = parsed;
+    } catch { return []; }
   } else {
     return [];
   }

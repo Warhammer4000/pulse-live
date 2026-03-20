@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, Cloud, MessageSquare, Star, ThumbsUp, ImageIcon } from "lucide-react";
+import { Plus, Trash2, Cloud, MessageSquare, Star, ThumbsUp, ImageIcon, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TYPE_ICONS, TYPE_LABELS, parseOptionItems, parseRatingConfig } from "./types";
+import { TYPE_ICONS, TYPE_LABELS, parseOptionItems, parseRatingConfig, parseQuizTimerSeconds } from "./types";
 import type { SlideRow, SlideType, OptionItem } from "./types";
 
 interface Props {
@@ -24,6 +24,7 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
     return items.length > 0 ? items.map((i) => i.text) : ["Yes", "No"];
   });
   const [imageUrl, setImageUrl] = useState((slide as any).image_url ?? "");
+  const [quizTimer, setQuizTimer] = useState<number | null>(() => parseQuizTimerSeconds(slide.options));
 
   useEffect(() => {
     setLocalQuestion(slide.question);
@@ -32,6 +33,7 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
     const items = parseOptionItems(slide.options);
     setPollStyle(items.length > 0 ? items.map((i) => i.text) : ["Yes", "No"]);
     setImageUrl((slide as any).image_url ?? "");
+    setQuizTimer(parseQuizTimerSeconds(slide.options));
   }, [slide.id]);
 
   useEffect(() => {
@@ -41,7 +43,10 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
         opts = ratingConfig;
       } else if (slide.type === "poll") {
         opts = pollStyle;
-      } else if (slide.type === "multiple_choice" || slide.type === "quiz" || slide.type === "ranking") {
+      } else if (slide.type === "quiz") {
+        // Wrap quiz options with timer config
+        opts = { items: localOptions, timer_seconds: quizTimer };
+      } else if (slide.type === "multiple_choice" || slide.type === "ranking") {
         opts = localOptions;
       } else {
         opts = [];
@@ -49,7 +54,7 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
       onSave(localQuestion, opts, imageUrl);
     }, 500);
     return () => clearTimeout(timer);
-  }, [localQuestion, localOptions, ratingConfig, pollStyle, imageUrl]);
+  }, [localQuestion, localOptions, ratingConfig, pollStyle, imageUrl, quizTimer]);
 
   const addOption = () =>
     setLocalOptions((prev) => [...prev, { id: crypto.randomUUID(), text: `Option ${String.fromCodePoint(65 + prev.length)}` }]);
@@ -197,7 +202,26 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
         </div>
       )}
 
-      {/* Rating Scale config */}
+      {/* Quiz Timer config */}
+      {slide.type === "quiz" && (
+        <div className="space-y-3">
+          <Label className="text-white/60 text-sm flex items-center gap-1.5">
+            <Timer className="h-3.5 w-3.5" /> Countdown Timer
+          </Label>
+          <Select value={quizTimer ? String(quizTimer) : "none"} onValueChange={(v) => setQuizTimer(v === "none" ? null : Number(v))}>
+            <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-primary/30 w-52">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#0f0f1a] border-white/10 text-white">
+              <SelectItem value="none" className="focus:accent-surface focus:accent-text">No timer</SelectItem>
+              <SelectItem value="10" className="focus:accent-surface focus:accent-text">10 seconds</SelectItem>
+              <SelectItem value="20" className="focus:accent-surface focus:accent-text">20 seconds</SelectItem>
+              <SelectItem value="30" className="focus:accent-surface focus:accent-text">30 seconds</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {slide.type === "rating_scale" && (
         <div className="space-y-3">
           <Label className="text-white/60 text-sm">Scale Range</Label>

@@ -35,13 +35,23 @@ export const TYPE_LABELS: Record<SlideType, string> = {
 /** Parse JSONB options into OptionItem[], handling legacy plain string arrays */
 export function parseOptionItems(raw: unknown): OptionItem[] {
   if (!raw) return [];
+  // Handle quiz wrapper format { items: [...], timer_seconds: ... }
+  if (typeof raw === "object" && !Array.isArray(raw) && raw !== null && "items" in raw) {
+    return parseOptionItems((raw as Record<string, unknown>).items);
+  }
   let arr: unknown[];
   if (Array.isArray(raw)) {
     arr = raw;
   } else if (typeof raw === "string") {
     try {
       const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
+      if (!Array.isArray(parsed)) {
+        // Could be wrapper object
+        if (typeof parsed === "object" && parsed !== null && "items" in parsed) {
+          return parseOptionItems(parsed);
+        }
+        return [];
+      }
       arr = parsed;
     } catch { return []; }
   } else {
@@ -68,4 +78,17 @@ export function parseRatingConfig(raw: unknown): { min: number; max: number } {
     return { min: Number((raw as Record<string, unknown>).min), max: Number((raw as Record<string, unknown>).max) };
   }
   return { min: 1, max: 5 };
+}
+
+/** Parse quiz timer seconds from options JSONB wrapper */
+export function parseQuizTimerSeconds(raw: unknown): number | null {
+  let obj = raw;
+  if (typeof obj === "string") {
+    try { obj = JSON.parse(obj); } catch { return null; }
+  }
+  if (obj && typeof obj === "object" && !Array.isArray(obj) && "timer_seconds" in obj) {
+    const val = (obj as Record<string, unknown>).timer_seconds;
+    return typeof val === "number" && val > 0 ? val : null;
+  }
+  return null;
 }
