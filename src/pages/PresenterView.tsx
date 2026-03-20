@@ -30,6 +30,11 @@ export default function PresenterView() {
   const participantCount = useParticipantCount(sessionId);
   const { playing: musicPlaying, toggle: toggleMusic, station, selectStation, stations } = useSoothingMusic();
 
+  const activeSlide = slides.find((s) => s.id === session?.active_slide_id);
+  const quizTimer = useQuizTimer(activeSlide, sessionId, () => {
+    queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
+  });
+
   const { data: session } = useQuery({
     queryKey: ["session", sessionId],
     queryFn: async () => {
