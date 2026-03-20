@@ -33,6 +33,7 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
     const items = parseOptionItems(slide.options);
     setPollStyle(items.length > 0 ? items.map((i) => i.text) : ["Yes", "No"]);
     setImageUrl((slide as any).image_url ?? "");
+    setQuizTimer(parseQuizTimerSeconds(slide.options));
   }, [slide.id]);
 
   useEffect(() => {
