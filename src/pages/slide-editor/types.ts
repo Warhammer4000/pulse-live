@@ -35,13 +35,23 @@ export const TYPE_LABELS: Record<SlideType, string> = {
 /** Parse JSONB options into OptionItem[], handling legacy plain string arrays */
 export function parseOptionItems(raw: unknown): OptionItem[] {
   if (!raw) return [];
+  // Handle quiz wrapper format { items: [...], timer_seconds: ... }
+  if (typeof raw === "object" && !Array.isArray(raw) && raw !== null && "items" in raw) {
+    return parseOptionItems((raw as Record<string, unknown>).items);
+  }
   let arr: unknown[];
   if (Array.isArray(raw)) {
     arr = raw;
   } else if (typeof raw === "string") {
     try {
       const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
+      if (!Array.isArray(parsed)) {
+        // Could be wrapper object
+        if (typeof parsed === "object" && parsed !== null && "items" in parsed) {
+          return parseOptionItems(parsed);
+        }
+        return [];
+      }
       arr = parsed;
     } catch { return []; }
   } else {
