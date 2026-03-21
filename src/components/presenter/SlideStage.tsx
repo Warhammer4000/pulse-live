@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { Play, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { BarChartViz } from "@/components/visualizations/BarChartViz";
 import { WordCloudViz } from "@/components/visualizations/WordCloudViz";
 import { ResponseFeed } from "@/components/visualizations/ResponseFeed";
@@ -19,14 +21,28 @@ interface Props {
   showResults: boolean;
   quizTimeLeft?: number | null;
   quizTotalSeconds?: number | null;
+  quizStarted?: boolean;
+  onStartQuizTimer?: () => void;
+  onResetQuizTimer?: () => void;
 }
 
-export function SlideStage({ activeSlide, responses, showResults, quizTimeLeft, quizTotalSeconds }: Readonly<Props>) {
+export function SlideStage({
+  activeSlide,
+  responses,
+  showResults,
+  quizTimeLeft,
+  quizTotalSeconds,
+  quizStarted,
+  onStartQuizTimer,
+  onResetQuizTimer,
+}: Readonly<Props>) {
   const optionItems = parseOptionItems(activeSlide.options);
   const options = optionTexts(optionItems);
   const ratingConfig = parseRatingConfig(activeSlide.options);
   const imageUrl = (activeSlide as any).image_url;
-  const hasTimer = quizTimeLeft !== null && quizTimeLeft !== undefined && quizTotalSeconds;
+  const hasTimer = quizTotalSeconds !== null && quizTotalSeconds !== undefined && quizTotalSeconds > 0;
+  const isQuizWithTimer = activeSlide.type === "quiz" && hasTimer;
+  const timerExpired = isQuizWithTimer && quizStarted && quizTimeLeft === 0;
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-8 overflow-hidden">
@@ -48,28 +64,67 @@ export function SlideStage({ activeSlide, responses, showResults, quizTimeLeft, 
           >
             {activeSlide.question ?? "Waiting for question..."}
           </h2>
-          {hasTimer && (
+
+          {/* Quiz timer: not started yet — show Start button */}
+          {isQuizWithTimer && !quizStarted && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center gap-4"
+            >
+              <p className="text-white/40 text-lg">Options are hidden from participants</p>
+              <p className="text-white/60 text-sm font-mono">{quizTotalSeconds}s countdown</p>
+              <Button
+                onClick={onStartQuizTimer}
+                size="lg"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white text-lg px-8 py-6 gap-2"
+              >
+                <Play className="h-5 w-5" />
+                Start Quiz
+              </Button>
+            </motion.div>
+          )}
+
+          {/* Quiz timer: running or expired — show countdown */}
+          {isQuizWithTimer && quizStarted && quizTimeLeft !== null && quizTimeLeft !== undefined && (
             <div className="mb-6 flex flex-col items-center gap-2">
-              <span className={cn(
-                "font-mono text-3xl font-bold tabular-nums",
-                quizTimeLeft <= 5 ? "text-red-400 animate-pulse" : quizTimeLeft <= 10 ? "text-amber-400" : "text-emerald-400",
-              )}>
-                {quizTimeLeft}s
-              </span>
-              <div className="h-2 w-64 rounded-full bg-white/10 overflow-hidden">
-                <motion.div
-                  className={cn(
-                    "h-full rounded-full",
-                    quizTimeLeft <= 5 ? "bg-red-500" : quizTimeLeft <= 10 ? "bg-amber-500" : "bg-emerald-500",
-                  )}
-                  initial={{ width: "100%" }}
-                  animate={{ width: `${(quizTimeLeft / quizTotalSeconds) * 100}%` }}
-                  transition={{ duration: 0.3 }}
-                />
+              <div className="flex items-center gap-3">
+                <span className={cn(
+                  "font-mono text-3xl font-bold tabular-nums",
+                  quizTimeLeft <= 5 ? "text-red-400 animate-pulse" : quizTimeLeft <= 10 ? "text-amber-400" : "text-emerald-400",
+                )}>
+                  {quizTimeLeft === 0 ? "Time's up!" : `${quizTimeLeft}s`}
+                </span>
+                {timerExpired && onResetQuizTimer && (
+                  <Button
+                    onClick={onResetQuizTimer}
+                    size="sm"
+                    variant="ghost"
+                    className="text-white/40 hover:text-white hover:bg-white/10 gap-1"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Reset
+                  </Button>
+                )}
               </div>
+              {quizTimeLeft > 0 && (
+                <div className="h-2 w-64 rounded-full bg-white/10 overflow-hidden">
+                  <motion.div
+                    className={cn(
+                      "h-full rounded-full",
+                      quizTimeLeft <= 5 ? "bg-red-500" : quizTimeLeft <= 10 ? "bg-amber-500" : "bg-emerald-500",
+                    )}
+                    initial={{ width: "100%" }}
+                    animate={{ width: `${(quizTimeLeft / quizTotalSeconds) * 100}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+              )}
             </div>
           )}
-          {showResults && (
+
+          {/* Results: show for non-quiz, or for quiz when started */}
+          {showResults && (!isQuizWithTimer || quizStarted) && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
