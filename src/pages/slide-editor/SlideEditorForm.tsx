@@ -208,17 +208,50 @@ export function SlideEditorForm({ slide, onTypeChange, onSave }: Props) {
           <Label className="text-white/60 text-sm flex items-center gap-1.5">
             <Timer className="h-3.5 w-3.5" /> Countdown Timer
           </Label>
-          <Select value={quizTimer ? String(quizTimer) : "none"} onValueChange={(v) => setQuizTimer(v === "none" ? null : Number(v))}>
-            <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-primary/30 w-52">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-[#0f0f1a] border-white/10 text-white">
-              <SelectItem value="none" className="focus:accent-surface focus:accent-text">No timer</SelectItem>
-              <SelectItem value="10" className="focus:accent-surface focus:accent-text">10 seconds</SelectItem>
-              <SelectItem value="20" className="focus:accent-surface focus:accent-text">20 seconds</SelectItem>
-              <SelectItem value="30" className="focus:accent-surface focus:accent-text">30 seconds</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2 flex-wrap">
+            {[30, 45, 60].map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setQuizTimer(preset)}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors border ${
+                  quizTimer === preset
+                    ? "bg-primary/20 text-primary border-primary/30"
+                    : "bg-white/5 text-white/50 border-white/8 hover:text-white/70 hover:bg-white/10"
+                }`}
+              >
+                {preset}s
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setQuizTimer(null)}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors border ${
+                quizTimer === null
+                  ? "bg-primary/20 text-primary border-primary/30"
+                  : "bg-white/5 text-white/50 border-white/8 hover:text-white/70 hover:bg-white/10"
+              }`}
+            >
+              None
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="text-white/40 text-xs shrink-0">Custom (5–300s):</Label>
+            <Input
+              type="number"
+              min={5}
+              max={300}
+              value={quizTimer ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") { setQuizTimer(null); return; }
+                const n = Math.min(300, Math.max(5, Number(v)));
+                setQuizTimer(n);
+              }}
+              placeholder="e.g. 90"
+              className="h-8 w-28 text-xs bg-white/5 border-white/8 text-white placeholder:text-white/20 focus-visible:ring-primary/30"
+            />
+          </div>
         </div>
       )}
 
