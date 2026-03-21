@@ -203,6 +203,9 @@ export default function PresenterView() {
         showResults={showResults}
         quizTimeLeft={quizTimer.timeLeft}
         quizTotalSeconds={quizTimer.totalSeconds}
+        quizStarted={quizTimer.started}
+        onStartQuizTimer={quizTimer.startTimer}
+        onResetQuizTimer={quizTimer.resetTimer}
       />
       <PresenterFooter
         session={session}
