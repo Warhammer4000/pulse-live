@@ -77,6 +77,9 @@ function Step-Supabase {
     # Migrations
     Invoke-MigrationCheck -exe $exe -projectRef $projectRef
 
+    # Edge functions
+    Invoke-EdgeFunctionSync -exe $exe -projectRef $projectRef
+
     # API keys
     Write-Step "Fetching API credentials..."
     $keys = ConvertFrom-SupabaseJson ((Invoke-Supabase projects api-keys --project-ref $projectRef --output json 2>&1) -join "`n")
@@ -140,6 +143,67 @@ function New-SupabaseProject {
 
     $projects = ConvertFrom-SupabaseJson ((Invoke-Supabase projects list --output json 2>&1) -join "`n")
     return $projects | Where-Object { $_.name -eq $projName } | Select-Object -First 1
+}
+
+function Invoke-EdgeFunctionSync([string]$exe, [string]$projectRef) {
+    Write-Host ""
+    $functionsPath = Join-Path $PSScriptRoot "../../supabase/functions"
+    if (-not (Test-Path $functionsPath)) {
+        Write-Info "No edge functions folder found — skipping."
+        return
+    }
+
+    # Local function names = immediate subdirectories (each subdir is one function)
+    $localFunctions = @(Get-ChildItem -Path $functionsPath -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notlike "_*" } |  # skip shared helpers prefixed with _
+        Select-Object -ExpandProperty Name)
+
+    if ($localFunctions.Count -eq 0) {
+        Write-Info "No edge functions found — skipping."
+        return
+    }
+
+    Write-Step "Deploying $($localFunctions.Count) edge function(s)..."
+    foreach ($fn in $localFunctions) {
+        Write-Info "  Deploying: $fn"
+        $result = Start-Process -FilePath $exe -ArgumentList "functions", "deploy", $fn, "--project-ref", $projectRef -NoNewWindow -PassThru -Wait
+        if ($result.ExitCode -ne 0) {
+            Write-Err "Failed to deploy edge function '$fn'. Run 'supabase functions deploy $fn --project-ref $projectRef' manually."
+            exit 1
+        }
+    }
+    Write-Success "Edge functions deployed"
+
+    # Remove remote functions that no longer exist locally
+    Write-Step "Checking for stale remote edge functions..."
+    $rawList = (& $exe functions list --project-ref $projectRef --output json 2>&1) -join "`n"
+    $remoteFunctions = @()
+    try {
+        $parsed = ConvertFrom-SupabaseJson $rawList
+        if ($parsed) { $remoteFunctions = @($parsed | Select-Object -ExpandProperty name) }
+    } catch { }
+
+    $stale = $remoteFunctions | Where-Object { $_ -notin $localFunctions }
+    if ($stale.Count -eq 0) {
+        Write-Info "No stale remote functions."
+        return
+    }
+
+    Write-Warn "Found $($stale.Count) remote function(s) not in local repo: $($stale -join ', ')"
+    Write-Host "  Delete them from Supabase? [y/N] " -ForegroundColor White -NoNewline
+    $confirm = Read-Host
+    if ($confirm -match '^[Yy]$') {
+        foreach ($fn in $stale) {
+            Write-Info "  Deleting: $fn"
+            $result = Start-Process -FilePath $exe -ArgumentList "functions", "delete", $fn, "--project-ref", $projectRef -NoNewWindow -PassThru -Wait
+            if ($result.ExitCode -ne 0) {
+                Write-Warn "Could not delete '$fn' — remove it manually from the Supabase dashboard."
+            }
+        }
+        Write-Success "Stale functions removed"
+    } else {
+        Write-Info "Skipped deletion of stale functions."
+    }
 }
 
 function Invoke-MigrationCheck([string]$exe, [string]$projectRef) {
