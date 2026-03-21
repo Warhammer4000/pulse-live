@@ -1,78 +1,70 @@
-## Plan: Fix Build Errors and Identify Next Improvements
 
-### Part 1: Fix Build Errors (3 issues)
 
-**Error 1**: `plans` not exported from `constants.ts (we don't need plan as it's anti-saas remove it)`
+## Plan: Improve Quiz Timer with Presenter Controls
 
-- `PricingSection.tsx` imports `plans` from `./constants`, but `constants.ts` has no `plans` export
-- Add a `plans` array to `src/components/landing/constants.ts` with Free/Pro/Team tiers (matching what PricingSection renders)
+### Summary
+Rework the quiz timer so the presenter manually starts it, options are hidden until started, the presenter can bypass/override the lock, and the timer input allows custom values beyond presets.
 
-**Error 2**: Extra props passed to `SlideEditorForm` that don't exist in its `Props` interface
+### Changes
 
-- `SlideEditor.tsx` passes `canDelete`, `isDuplicating`, `onDuplicate`, `onDelete` to `SlideEditorForm`, but the form's `Props` only has `slide`, `onTypeChange`, `onSave`
-- Remove these 4 props from the `SlideEditorForm` usage in `SlideEditor.tsx` (lines 86-90) -- the form doesn't use them
+**1. `useQuizTimer.ts` — Add manual start control**
+- Don't auto-start the countdown on slide load. Instead, expose a `startTimer()` callback and a `started` boolean.
+- When `started` is false: `timeLeft` equals `totalSeconds` (paused), options hidden.
+- When `startTimer()` is called: begin the countdown interval.
+- Add a `resetTimer()` to allow restarting.
+- Keep the auto-lock behavior on expiry.
 
-**Error 3**: No `supabase/functions` directory
-
-- The edge function was deleted but the empty directory is missing
-- Create a `.gitkeep` file in `supabase/functions/` to keep the directory
-
-### Part 2: Improvements to Consider Next
-
-After fixing these build errors, here are the highest-impact improvements ranked by priority:
-
-1. **QR code on join page** -- Currently participants must type the 6-digit code. Adding a QR scanner option on `/join` would speed up onboarding.
-2. **Timer for Quiz mode** -- Quiz slides currently have no countdown timer. Adding a configurable timer (10s/20s/30s) per quiz slide with auto-lock when time runs out would make quizzes more engaging.
-3. **Slide thumbnails with type icons** -- The sidebar thumbnails could show the slide type icon and a preview of the question text for faster navigation.
-4. **Export improvements** -- Add PDF export for session results alongside the existing Excel/CSV export.
-5. **Duplicate presentation** -- Allow users to duplicate an entire presentation (with all slides) from the presentations list.
-
-### Technical Details
-
-For the build fixes, the changes are:
-
-`**src/components/landing/constants.ts**` -- Add:
-
+New return type:
 ```typescript
-export const plans = [
-  {
-    name: "Free",
-    price: "$0",
-    period: null,
-    desc: "For trying things out",
-    features: ["Up to 3 presentations", "25 participants per session", "Basic slide types", "7-day history"],
-    cta: "Get Started",
-    highlight: false,
-  },
-  {
-    name: "Pro",
-    price: "$12",
-    period: "/mo",
-    desc: "For professionals and educators",
-    features: ["Unlimited presentations", "500 participants per session", "All slide types", "Unlimited history", "Export to Excel & CSV", "Custom branding"],
-    cta: "Start Free Trial",
-    highlight: true,
-  },
-  {
-    name: "Team",
-    price: "$29",
-    period: "/mo",
-    desc: "For teams and organizations",
-    features: ["Everything in Pro", "Unlimited participants", "Team collaboration", "Priority support", "SSO & admin controls"],
-    cta: "Contact Sales",
-    highlight: false,
-  },
-];
+interface QuizTimerResult {
+  timeLeft: number | null;
+  totalSeconds: number | null;
+  started: boolean;
+  startTimer: () => void;
+  resetTimer: () => void;
+}
 ```
 
-`**src/pages/SlideEditor.tsx**` -- Remove extra props from `SlideEditorForm`:
+**2. `SlideStage.tsx` — Hide options until timer starts, add start button**
+- Accept new props: `quizStarted`, `onStartQuizTimer`.
+- When quiz slide has a timer and `quizStarted` is false: show the question but replace the answer visualization with a "Start Quiz" button for the presenter.
+- Once started, show the countdown bar + quiz options/results as before.
 
-```tsx
-<SlideEditorForm
-  slide={selectedSlide}
-  onTypeChange={(type: SlideType) => updateSlideType(selectedSlide, type)}
-  onSave={(question: string, options: unknown, imageUrl: string) => saveSlideContent(selectedSlide, question, options, imageUrl)}
-/>
+**3. `PresenterView.tsx` — Wire up new timer controls + bypass**
+- Pass `quizTimer.started` and `quizTimer.startTimer` to `SlideStage`.
+- When the timer expires and voting is locked, the presenter can still manually unlock voting via the existing `toggleVotingLock` (this already works as a bypass — just ensure the unlock button is visible even after timer expiry).
+
+**4. `PresenterTopBar.tsx` — Ensure lock/unlock toggle is always visible for quiz**
+- Verify the voting lock toggle button remains accessible after timer auto-locks so the presenter can override it.
+
+**5. `SlideContent.tsx` (participant view) — Hide quiz options until timer starts**
+- Need a way for participants to know the timer has started. Use the session's `voting_locked` field:
+  - When a quiz slide loads, set `voting_locked = true` initially (before timer starts).
+  - When presenter clicks "Start Quiz", set `voting_locked = false` and start the timer.
+  - When timer expires, set `voting_locked = true` again.
+- This means participants see "Voting is locked" until the presenter starts the timer — which is the existing locked UI. No participant-side code changes needed beyond what already exists.
+
+**6. `useQuizTimer.ts` — Auto-lock on slide entry**
+- When a quiz slide with a timer becomes active and `started` is false, auto-set `voting_locked = true` on the session so participants can't answer yet.
+
+**7. `SlideEditorForm.tsx` — Custom timer input**
+- Replace the dropdown with a hybrid: show preset buttons (30s, 45s, 60s) plus a custom number input.
+- Allow any value from 5 to 300 seconds.
+
+### Flow
+```text
+Quiz slide loaded → voting locked, options hidden for everyone
+         ↓
+Presenter clicks "Start Quiz" → voting unlocked, timer counts down
+         ↓
+Timer expires → voting auto-locked, results shown
+         ↓
+Presenter can manually unlock again (bypass) if needed
 ```
 
-`**supabase/functions/.gitkeep**` -- Create empty file.
+### Files modified
+- `src/hooks/presenter/useQuizTimer.ts` — add `started`, `startTimer`, `resetTimer`, auto-lock on entry
+- `src/components/presenter/SlideStage.tsx` — accept new props, show start button
+- `src/pages/PresenterView.tsx` — wire new timer state
+- `src/pages/slide-editor/SlideEditorForm.tsx` — custom timer input with presets
+
