@@ -14,7 +14,7 @@ export function ResponseFeed({ responses }: ResponseFeedProps) {
 
   if (sorted.length === 0) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground">
+      <div className="flex items-center justify-center py-16 text-white/40">
         Waiting for responses...
       </div>
     );
@@ -31,10 +31,10 @@ export function ResponseFeed({ responses }: ResponseFeedProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="rounded-xl border border-border/50 bg-card p-4 shadow-sm"
+            className="rounded-xl border border-white/8 bg-white/5 p-4"
           >
-            <p className="text-base leading-relaxed">{r.value}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="text-base leading-relaxed text-white">{r.value}</p>
+            <p className="mt-1 text-xs text-white/40">
               {new Date(r.created_at).toLocaleTimeString()}
             </p>
           </motion.div>
